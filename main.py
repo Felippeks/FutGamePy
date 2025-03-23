@@ -26,6 +26,10 @@ GOAL_HEIGHT = 150
 BALL_SPEED = 5
 HITBOX_SCALE = 0.8
 
+# Tamanho dos botões
+BUTTON_WIDTH = 150
+BUTTON_HEIGHT = 37
+
 class Game:
     def __init__(self):
         # Carregar recursos
@@ -42,6 +46,7 @@ class Game:
         
         # UI e fontes
         self.font = pygame.font.Font("PressStart2P-Regular.ttf", 24) if pygame.font.get_init() else None
+        self.button_font = pygame.font.Font("PressStart2P-Regular.ttf", 14) if pygame.font.get_init() else None
         self.time_remaining = self.game_time
         self.timer_event = pygame.USEREVENT + 1
         self.player1_name = ""
@@ -191,20 +196,20 @@ class Game:
 
     def draw_buttons(self):
         # Desenhar botão de iniciar
-        start_button_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 - 100, 200, 50)
+        start_button_rect = pygame.Rect(10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
         pygame.draw.rect(WIN, WHITE, start_button_rect)
-        start_text = self.font.render("Iniciar", True, BLACK)
+        start_text = self.button_font.render("Iniciar", True, BLACK)
         WIN.blit(start_text, (start_button_rect.centerx - start_text.get_width()//2, start_button_rect.centery - start_text.get_height()//2))
 
         # Desenhar botão de reiniciar
-        reset_button_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2, 200, 50)
+        reset_button_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
         pygame.draw.rect(WIN, WHITE, reset_button_rect)
-        reset_text = self.font.render("Reiniciar", True, BLACK)
+        reset_text = self.button_font.render("Reiniciar", True, BLACK)
         WIN.blit(reset_text, (reset_button_rect.centerx - reset_text.get_width()//2, reset_button_rect.centery - reset_text.get_height()//2))
 
     def check_button_click(self, pos):
-        start_button_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 - 100, 200, 50)
-        reset_button_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2, 200, 50)
+        start_button_rect = pygame.Rect(10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+        reset_button_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
         if start_button_rect.collidepoint(pos):
             self.start_game()
         elif reset_button_rect.collidepoint(pos):
