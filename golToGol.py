@@ -424,16 +424,18 @@ class InputHandler:
             if not state.player2_name.strip():
                 state.player2_name = "Player 2"
             
+            # Resetar estado do jogo
             state.player1_score = 0
             state.player2_score = 0
             state.time_remaining = state.selected_duration
-            
-            state.menu_active = False
             state.game_started = True
             state.game_over = False
+            state.menu_active = False
             state.is_paused = False
             
-            # Resetar a bola e posições
+            # Resetar posições físicas
+            game.paddles[0].rect.topleft = (Config.FIELD_OFFSET_X + 50, Config.HEIGHT//2 - Config.PADDLE_HEIGHT//2)
+            game.paddles[1].rect.topleft = (Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 50 - Config.PADDLE_WIDTH, Config.HEIGHT//2 - Config.PADDLE_HEIGHT//2)
             game.ball.reset()
 
     @staticmethod
