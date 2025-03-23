@@ -89,7 +89,7 @@ class Game:
         self.ball_speed_x = BALL_SPEED * random.choice([-1, 1])
         self.ball_speed_y = BALL_SPEED * random.uniform(-1, 1)
         self.ball_angle = 0
-        self.ball_rotation_speed = random.uniform(-0.1, 0.1)
+        self.ball_rotation_speed = random.uniform(-0.5, 0.5)  # Aumentar a velocidade de rotação
         
         # Estados do jogo
         self.player1_score = 0
@@ -128,11 +128,11 @@ class Game:
         if self.ball.top <= 50:
             self.ball.top = 50
             self.ball_speed_y *= -1
-            self.ball_rotation_speed = random.uniform(-0.2, 0.2)
+            self.ball_rotation_speed = random.uniform(-0.5, 0.5)  # Aumentar a velocidade de rotação
         elif self.ball.bottom >= FIELD_HEIGHT + 50:
             self.ball.bottom = FIELD_HEIGHT + 50
             self.ball_speed_y *= -1
-            self.ball_rotation_speed = random.uniform(-0.2, 0.2)
+            self.ball_rotation_speed = random.uniform(-0.5, 0.5)  # Aumentar a velocidade de rotação
 
         # Colisão com paddles
         for paddle in [self.paddle1, self.paddle2]:
@@ -160,7 +160,7 @@ class Game:
                 
                 # Ajuste de velocidade
                 self.ball_speed_y += random.uniform(-1, 1)
-                self.ball_rotation_speed = random.uniform(-0.2, 0.2)
+                self.ball_rotation_speed = random.uniform(-0.5, 0.5)  # Aumentar a velocidade de rotação
 
         # Verificação de gols
         if self.ball.left <= 100:
@@ -183,7 +183,7 @@ class Game:
         self.ball_speed_x = BALL_SPEED if player1_scored else -BALL_SPEED
         self.ball_speed_y = BALL_SPEED * random.uniform(-1, 1)
         self.ball_angle = 0
-        self.ball_rotation_speed = random.uniform(-0.1, 0.1)
+        self.ball_rotation_speed = random.uniform(-0.5, 0.5)  # Aumentar a velocidade de rotação
 
     def draw_ui(self):
         # Placar
@@ -336,8 +336,10 @@ class Game:
             WIN.blit(self.player1_img, (self.paddle1.x, self.paddle1.y))
             WIN.blit(self.player2_img, (self.paddle2.x, self.paddle2.y))
             
+            # Desenhar a bola com rotação
             rotated_ball = pygame.transform.rotate(self.soccer_ball, self.ball_angle)
-            WIN.blit(rotated_ball, (self.ball.x, self.ball.y))
+            ball_rect = rotated_ball.get_rect(center=self.ball.center)
+            WIN.blit(rotated_ball, ball_rect.topleft)
             
             self.draw_ui()
             self.draw_buttons()
