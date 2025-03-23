@@ -57,7 +57,8 @@ class GameState:
         self.player1_name = ""
         self.player2_name = ""
         self.input_active: Optional[str] = None
-        self.menu_active = True  
+        self.menu_active = True
+        self.is_paused = False 
 
 class Ball:
     def __init__(self):
@@ -105,7 +106,7 @@ class Ball:
 
     def update(self):
         self.rect.x += self.speed_x
-        self.rect.y += self.speed_y
+        self.rect.y += self.speed_y # type: ignore
         self.angle += self.rotation_speed
 
     def draw(self, surface: pygame.Surface):
@@ -142,7 +143,7 @@ class PhysicsEngine:
             
             if distance < (Config.BALL_SIZE//2 + max(paddle.rect.width, paddle.rect.height)//2):
                 angle = math.atan2(dy, dx)
-                ball.speed_x = Config.BALL_SPEED * math.cos(angle)
+                ball.speed_x = Config.BALL_SPEED * math.cos(angle) # type: ignore
                 ball.speed_y = Config.BALL_SPEED * math.sin(angle)
                 ball.rotation_speed = random.uniform(-8, 8)
 
@@ -168,6 +169,10 @@ class UIManager:
         self.fonts['button'] = AssetLoader.load_font("PressStart2P-Regular.ttf", 10)
         self.grass = AssetLoader.load_image("imagens/grass.png", 
             (Config.FIELD_WIDTH, Config.FIELD_HEIGHT))
+        
+        # Carregar imagens dos cabeçalhos
+        self.head1 = AssetLoader.load_image("imagens/head1.png", (35, 30))
+        self.head2 = AssetLoader.load_image("imagens/head2.png", (35, 30))
 
     def draw_field(self, surface: pygame.Surface):
         surface.blit(self.grass, (Config.FIELD_OFFSET_X, Config.FIELD_OFFSET_Y))
@@ -208,33 +213,24 @@ class UIManager:
         self._draw_timer(surface)
         self._draw_buttons(surface)
 
+        if self.state.is_paused:  
+            self._draw_text_with_outline(surface, "PAUSADO", Config.WHITE)
+
     def _draw_scores(self, surface: pygame.Surface):
         name1 = self.fonts['small'].render(self.state.player1_name, True, Config.WHITE)
         name2 = self.fonts['small'].render(self.state.player2_name, True, Config.WHITE)
         score1 = self.fonts['normal'].render(str(self.state.player1_score), True, Config.WHITE)
         score2 = self.fonts['normal'].render(str(self.state.player2_score), True, Config.WHITE)
         
-        # Desenhar nome e placar do Jogador 1 com separador
+        # Desenhar nome e placar do Jogador 1 com imagem do cabeçalho
         surface.blit(name1, (Config.WIDTH//4 - name1.get_width()//2, 20))
-        self._draw_separator(surface, Config.WIDTH//4 + name1.get_width()//2 + 20, 20)
-        surface.blit(score1, (Config.WIDTH//4 + name1.get_width()//2 + 60, 20))  # Mais espaço
+        surface.blit(self.head1, (Config.WIDTH//4 + name1.get_width()//2 + 20, 10))  # Adicionar imagem do cabeçalho
+        surface.blit(score1, (Config.WIDTH//4 + name1.get_width()//2 + 90, 18))  # Mais espaço
         
-        # Desenhar nome e placar do Jogador 2 com separador
+        # Desenhar nome e placar do Jogador 2 com imagem do cabeçalho
         surface.blit(name2, (3*Config.WIDTH//4 - name2.get_width()//2, 20))
-        self._draw_separator(surface, 3*Config.WIDTH//4 + name2.get_width()//2 + 20, 20)
-        surface.blit(score2, (3*Config.WIDTH//4 + name2.get_width()//2 + 60, 20))  # Mais espaço
-
-    def _draw_separator(self, surface: pygame.Surface, x: int, y: int):
-        # Desenhar contorno branco
-        separator_outline = self.fonts['normal'].render("|", True, Config.WHITE)
-        surface.blit(separator_outline, (x - 2, y - 2))
-        surface.blit(separator_outline, (x + 2, y - 2))
-        surface.blit(separator_outline, (x - 2, y + 2))
-        surface.blit(separator_outline, (x + 2, y + 2))
-        
-        # Desenhar pipe amarelo
-        separator = self.fonts['normal'].render("|", True, Config.GOLD)
-        surface.blit(separator, (x, y))
+        surface.blit(self.head2, (3*Config.WIDTH//4 + name2.get_width()//2 + 20, 10))  # Adicionar imagem do cabeçalho
+        surface.blit(score2, (3*Config.WIDTH//4 + name2.get_width()//2 + 90, 18))  # Mais espaço
 
     def _draw_timer(self, surface: pygame.Surface):
         timer_text = self.fonts['normal'].render(
@@ -243,9 +239,10 @@ class UIManager:
         surface.blit(timer_text, (Config.WIDTH//2 - timer_text.get_width()//2, 20))
 
     def _draw_buttons(self, surface: pygame.Surface):
+        pause_text = "Continuar" if self.state.is_paused else "Pausar"
         buttons = [
-            (10, 10, "Menu"),  # Alterado para Menu
-            (Config.WIDTH - Config.BUTTON_WIDTH + 50 - 10, 10, "Reiniciar")
+            (10, 10, "Menu"),
+            (Config.WIDTH - Config.BUTTON_WIDTH + 50 - 10, 10, pause_text)
         ]
         
         for x, y, text in buttons:
@@ -364,22 +361,21 @@ class UIManager:
         text_surf = self.fonts['small'].render(text, True, Config.WHITE)
         text_rect = text_surf.get_rect(center=button_rect.center)
         surface.blit(text_surf, text_rect)
-
 class InputHandler:
     @staticmethod
     def _handle_game_click(pos: Tuple[int, int], state: GameState, game):
-        # Botões durante o jogo
         buttons = [
-            pygame.Rect(10, 10, Config.BUTTON_WIDTH, Config.BUTTON_HEIGHT),  # Menu
-            pygame.Rect(Config.WIDTH - Config.BUTTON_WIDTH - 10, 10, 
-                       Config.BUTTON_WIDTH, Config.BUTTON_HEIGHT)  # Reiniciar
+            pygame.Rect(10, 10, Config.BUTTON_WIDTH - 50, Config.BUTTON_HEIGHT - 10),  # Menu
+            pygame.Rect(Config.WIDTH - Config.BUTTON_WIDTH + 50 - 10, 10,
+                       Config.BUTTON_WIDTH - 50, Config.BUTTON_HEIGHT - 10)  # Pausar/Continuar
         ]
         
-        if buttons[0].collidepoint(pos):  # Botão Menu
+        if buttons[0].collidepoint(pos):
             state.menu_active = True
             state.game_started = False
-        elif buttons[1].collidepoint(pos):  # Botão Reiniciar
-            game.reset()
+            state.is_paused = False  # Resetar pausa ao voltar ao menu
+        elif buttons[1].collidepoint(pos):
+            state.is_paused = not state.is_paused  # Alternar estado de pausa
 
 
     @staticmethod
@@ -427,9 +423,18 @@ class InputHandler:
                 state.player1_name = "Player 1"
             if not state.player2_name.strip():
                 state.player2_name = "Player 2"
+            
+            state.player1_score = 0
+            state.player2_score = 0
+            state.time_remaining = state.selected_duration
+            
             state.menu_active = False
             state.game_started = True
-            state.time_remaining = state.selected_duration
+            state.game_over = False
+            state.is_paused = False
+            
+            # Resetar a bola e posições
+            game.ball.reset()
 
     @staticmethod
     def _handle_menu_key_input(event: pygame.event.Event, state: GameState):
@@ -459,7 +464,6 @@ class InputHandler:
         elif reset_rect.collidepoint(pos):
             game.reset()
     
-
 
     @staticmethod
     def _handle_key_input(event: pygame.event.Event, state: GameState):
@@ -538,16 +542,18 @@ class Game:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            InputHandler.handle(event, self.state, self)
             
-            if event.type == self.timer_event and self.state.game_started:
+            InputHandler.handle(event, self.state, self)
+
+            if event.type == self.timer_event and self.state.game_started and not self.state.is_paused:
                 self.state.time_remaining -= 1
                 if self.state.time_remaining <= 0:
                     self.state.game_over = True
                     self.state.game_started = False
 
+    
     def _update(self):
-        if self.state.game_started and not self.state.game_over:
+        if self.state.game_started and not self.state.game_over and not self.state.is_paused:
             self._move_players()
             self.ball.update()
             result = PhysicsEngine.handle_collisions(self.ball, self.paddles)
@@ -559,6 +565,9 @@ class Game:
                 self.ball.reset(1)
 
     def _move_players(self):
+        if self.state.is_paused:
+            return
+            
         keys = pygame.key.get_pressed()
         
         # Player 1
