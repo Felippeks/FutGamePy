@@ -29,6 +29,7 @@ HITBOX_SCALE = 0.8
 # Tamanho dos botões
 BUTTON_WIDTH = 150
 BUTTON_HEIGHT = 37
+NAME_FIELD_WIDTH = 300  # Largura dos campos de entrada de nome
 
 class Game:
     def __init__(self):
@@ -215,21 +216,21 @@ class Game:
         WIN.blit(reset_text, (reset_button_rect.centerx - reset_text.get_width()//2, reset_button_rect.centery - reset_text.get_height()//2))
 
         # Desenhar campos de entrada para nomes dos jogadores
-        player1_name_rect = pygame.Rect(10, HEIGHT - BUTTON_HEIGHT - 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+        player1_name_rect = pygame.Rect(10, HEIGHT - BUTTON_HEIGHT - 10, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
         pygame.draw.rect(WIN, WHITE, player1_name_rect)
         player1_name_text = self.button_font.render(self.player1_name if self.player1_name else "Nome Jogador 1", True, BLACK)
-        WIN.blit(player1_name_text, (player1_name_rect.x + 5, player1_name_rect.y + 5))
+        WIN.blit(player1_name_text, (player1_name_rect.centerx - player1_name_text.get_width()//2, player1_name_rect.centery - player1_name_text.get_height()//2))
 
-        player2_name_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, HEIGHT - BUTTON_HEIGHT - 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+        player2_name_rect = pygame.Rect(WIDTH - NAME_FIELD_WIDTH - 10, HEIGHT - BUTTON_HEIGHT - 10, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
         pygame.draw.rect(WIN, WHITE, player2_name_rect)
         player2_name_text = self.button_font.render(self.player2_name if self.player2_name else "Nome Jogador 2", True, BLACK)
-        WIN.blit(player2_name_text, (player2_name_rect.x + 5, player2_name_rect.y + 5))
+        WIN.blit(player2_name_text, (player2_name_rect.centerx - player2_name_text.get_width()//2, player2_name_rect.centery - player2_name_text.get_height()//2))
 
     def check_button_click(self, pos):
         start_button_rect = pygame.Rect(10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
         reset_button_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
-        player1_name_rect = pygame.Rect(10, HEIGHT - BUTTON_HEIGHT - 10, BUTTON_WIDTH, BUTTON_HEIGHT)
-        player2_name_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, HEIGHT - BUTTON_HEIGHT - 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+        player1_name_rect = pygame.Rect(10, HEIGHT - BUTTON_HEIGHT - 10, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
+        player2_name_rect = pygame.Rect(WIDTH - NAME_FIELD_WIDTH - 10, HEIGHT - BUTTON_HEIGHT - 10, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
 
         if start_button_rect.collidepoint(pos):
             self.start_game()
