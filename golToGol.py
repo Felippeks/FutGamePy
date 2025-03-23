@@ -188,10 +188,10 @@ class UIManager:
         
         pygame.draw.rect(surface, Config.GOLD, 
             (Config.FIELD_OFFSET_X, (Config.HEIGHT - Config.GOAL_HEIGHT)//2, 
-             10, Config.GOAL_HEIGHT))
+             10, Config.GOAL_HEIGHT), border_radius=5)
         pygame.draw.rect(surface, Config.GOLD, 
             (Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 10, 
-             (Config.HEIGHT - Config.GOAL_HEIGHT)//2, 10, Config.GOAL_HEIGHT))
+             (Config.HEIGHT - Config.GOAL_HEIGHT)//2, 10, Config.GOAL_HEIGHT), border_radius=5)
         
         area_width = 100
         area_height = Config.GOAL_HEIGHT + 100
@@ -247,7 +247,8 @@ class UIManager:
         
         for x, y, text in buttons:
             rect = pygame.Rect(x, y, Config.BUTTON_WIDTH - 50, Config.BUTTON_HEIGHT - 10)
-            pygame.draw.rect(surface, Config.WHITE, rect)
+            pygame.draw.rect(surface, Config.WHITE, rect, border_radius=15)
+            pygame.draw.rect(surface, Config.BLACK, rect, 2, border_radius=15)
             text_surf = self.fonts['button'].render(text, True, Config.BLACK)
             surface.blit(text_surf, (x + (Config.BUTTON_WIDTH - 50)//2 - text_surf.get_width()//2, 
                                    y + (Config.BUTTON_HEIGHT - 10)//2 - text_surf.get_height()//2))
@@ -288,8 +289,8 @@ class UIManager:
             menu_width,
             menu_height
         )
-        pygame.draw.rect(surface, Config.DARK_GOLD, menu_rect)
-        pygame.draw.rect(surface, Config.GOLD, menu_rect, 3)
+        pygame.draw.rect(surface, Config.DARK_GOLD, menu_rect, border_radius=20)
+        pygame.draw.rect(surface, Config.GOLD, menu_rect, 3, border_radius=20)
         
         # Título
         title = self.fonts['large'].render("GOL A GOL", True, Config.WHITE)
@@ -311,7 +312,7 @@ class UIManager:
         # Tempo de Jogo
         self._draw_time_buttons(surface, elements_y + spacing * 2)
         # Botão Iniciar
-        self._draw_menu_button(surface, "INICIAR JOGO", elements_y + spacing * 3)
+        self._draw_menu_button(surface, "GAME START", elements_y + spacing * 3)
 
     def _draw_menu_input(self, surface, label, value, y, field_id):
         font = self.fonts['small']
@@ -326,7 +327,7 @@ class UIManager:
             40
         )
         color = Config.GOLD if self.state.input_active == field_id else Config.WHITE
-        pygame.draw.rect(surface, color, input_rect, 2)
+        pygame.draw.rect(surface, color, input_rect, 2, border_radius=10)
         
         # Exibe "Insira seu nome" se o campo estiver vazio e não estiver ativo
         displayed_text = value if (self.state.input_active == field_id or value) else "Insert name"
@@ -345,7 +346,7 @@ class UIManager:
         for i, opt in enumerate(options):
             rect = pygame.Rect(x_pos + i*140, y, 110, 40)
             color = Config.GOLD if Config.TIME_OPTIONS[i] == self.state.selected_duration else Config.WHITE
-            pygame.draw.rect(surface, color, rect, 2)
+            pygame.draw.rect(surface, color, rect, 2, border_radius=10)
             text = font.render(opt, True, Config.WHITE)
             text_rect = text.get_rect(center=rect.center)
             surface.blit(text, text_rect)
@@ -357,7 +358,8 @@ class UIManager:
             200,
             50
         )
-        pygame.draw.rect(surface, Config.GOLD, button_rect)
+        pygame.draw.rect(surface, Config.GOLD, button_rect, border_radius=20)
+        pygame.draw.rect(surface, Config.WHITE, button_rect, 3, border_radius=20)
         text_surf = self.fonts['small'].render(text, True, Config.WHITE)
         text_rect = text_surf.get_rect(center=button_rect.center)
         surface.blit(text_surf, text_rect)
