@@ -22,8 +22,8 @@ class Config:
     GOAL_HEIGHT = 150
     BUTTON_WIDTH, BUTTON_HEIGHT = 150, 37
     NAME_FIELD_WIDTH = 300
-    FONT_SIZES = {'normal': 24, 'small': 14, 'large': 48}
-    GAME_DURATION = 60
+    FONT_SIZES = {'normal': 20, 'small': 16, 'large': 36}
+    TIME_OPTIONS = [60, 180, 300]
 
 class AssetLoader:
     @staticmethod
@@ -50,12 +50,14 @@ class GameState:
     def reset(self):
         self.player1_score = 0
         self.player2_score = 0
-        self.time_remaining = Config.GAME_DURATION
+        self.selected_duration = Config.TIME_OPTIONS[0]  # Tempo padrão 1 minuto
+        self.time_remaining = self.selected_duration  # Usar a duração selecionada
         self.game_started = False
         self.game_over = False
         self.player1_name = "Jogador 1"
         self.player2_name = "Jogador 2"
         self.input_active: Optional[str] = None
+        self.menu_active = True  
 
 class Ball:
     def __init__(self):
@@ -207,10 +209,15 @@ class UIManager:
         self._draw_buttons(surface)
 
     def _draw_scores(self, surface: pygame.Surface):
+        name1 = self.fonts['small'].render(self.state.player1_name, True, Config.WHITE)
+        name2 = self.fonts['small'].render(self.state.player2_name, True, Config.WHITE)
+        surface.blit(name1, (Config.WIDTH//4 - name1.get_width()//2, 20))
+        surface.blit(name2, (3*Config.WIDTH//4 - name2.get_width()//2, 20))
+        
         score1 = self.fonts['normal'].render(str(self.state.player1_score), True, Config.WHITE)
         score2 = self.fonts['normal'].render(str(self.state.player2_score), True, Config.WHITE)
-        surface.blit(score1, (Config.WIDTH//4 - score1.get_width()//2, 20))
-        surface.blit(score2, (3*Config.WIDTH//4 - score2.get_width()//2, 20))
+        surface.blit(score1, (Config.WIDTH//4 - score1.get_width()//2, 50))
+        surface.blit(score2, (3*Config.WIDTH//4 - score2.get_width()//2, 50))
 
     def _draw_timer(self, surface: pygame.Surface):
         timer_text = self.fonts['normal'].render(
@@ -234,7 +241,7 @@ class UIManager:
 
     def _draw_buttons(self, surface: pygame.Surface):
         buttons = [
-            (10, 10, "Iniciar"),
+            (10, 10, "Menu"),  # Alterado para Menu
             (Config.WIDTH - Config.BUTTON_WIDTH - 10, 10, "Reiniciar")
         ]
         
@@ -266,13 +273,165 @@ class UIManager:
                     surface.blit(outline_surf, (pos[0] + dx, pos[1] + dy))
         surface.blit(text_surf, pos)
 
+    def draw_menu(self, surface: pygame.Surface):
+        # Fundo semi-transparente
+        overlay = pygame.Surface((Config.WIDTH, Config.HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 200))
+        surface.blit(overlay, (0, 0))
+        
+        # Container do menu
+        menu_width = 780
+        menu_height = 450
+        menu_rect = pygame.Rect(
+            (Config.WIDTH - menu_width) // 2,
+            (Config.HEIGHT - menu_height) // 2,
+            menu_width,
+            menu_height
+        )
+        pygame.draw.rect(surface, Config.DARK_GOLD, menu_rect)
+        pygame.draw.rect(surface, Config.GOLD, menu_rect, 3)
+        
+        # Título
+        title = self.fonts['large'].render("GOL A GOL", True, Config.WHITE)
+        surface.blit(title, (
+            Config.WIDTH//2 - title.get_width()//2,
+            menu_rect.y + 15
+        ))
+        
+        # Elementos do menu
+        elements_y = menu_rect.y + 70
+        spacing = 60
+        
+        # Nome Jogador 1
+        self._draw_menu_input(surface, "Jogador 1:", self.state.player1_name, 
+                            elements_y, 'player1')
+        # Nome Jogador 2
+        self._draw_menu_input(surface, "Jogador 2:", self.state.player2_name, 
+                            elements_y + spacing, 'player2')
+        # Tempo de Jogo
+        self._draw_time_buttons(surface, elements_y + spacing * 2)
+        # Botão Iniciar
+        self._draw_menu_button(surface, "INICIAR JOGO", elements_y + spacing * 3)
+
+    def _draw_menu_input(self, surface, label, value, y, field_id):
+        font = self.fonts['small']
+        label_text = font.render(label, True, Config.WHITE)
+        surface.blit(label_text, (Config.WIDTH//2 - 300, y))
+        
+        input_rect = pygame.Rect(
+            Config.WIDTH//2 - 50,
+            y,
+            300,
+            40
+        )
+        color = Config.GOLD if self.state.input_active == field_id else Config.WHITE
+        pygame.draw.rect(surface, color, input_rect, 2)
+        
+        text = self.fonts['small'].render(value, True, Config.WHITE)
+        text_rect = text.get_rect(center=input_rect.center)
+        surface.blit(text, text_rect)
+
+    def _draw_time_buttons(self, surface, y):
+        font = self.fonts['small']
+        label_text = font.render("Tempo de Jogo:", True, Config.WHITE)
+        surface.blit(label_text, (Config.WIDTH//2 - 300, y))
+        
+        options = ['1 MIN', '3 MIN', '5 MIN']
+        x_pos = Config.WIDTH//2 - 50
+        for i, opt in enumerate(options):
+            rect = pygame.Rect(x_pos + i*140, y, 110, 40)
+            color = Config.GOLD if Config.TIME_OPTIONS[i] == self.state.selected_duration else Config.WHITE
+            pygame.draw.rect(surface, color, rect, 2)
+            text = font.render(opt, True, Config.WHITE)
+            text_rect = text.get_rect(center=rect.center)
+            surface.blit(text, text_rect)
+
+    def _draw_menu_button(self, surface, text, y):
+        button_rect = pygame.Rect(
+            Config.WIDTH//2 - 100,
+            y,
+            200,
+            50
+        )
+        pygame.draw.rect(surface, Config.GOLD, button_rect)
+        text_surf = self.fonts['small'].render(text, True, Config.WHITE)
+        text_rect = text_surf.get_rect(center=button_rect.center)
+        surface.blit(text_surf, text_rect)
+
 class InputHandler:
+    @staticmethod
+    def _handle_game_click(pos: Tuple[int, int], state: GameState, game):
+        # Botões durante o jogo
+        buttons = [
+            pygame.Rect(10, 10, Config.BUTTON_WIDTH, Config.BUTTON_HEIGHT),  # Menu
+            pygame.Rect(Config.WIDTH - Config.BUTTON_WIDTH - 10, 10, 
+                       Config.BUTTON_WIDTH, Config.BUTTON_HEIGHT)  # Reiniciar
+        ]
+        
+        if buttons[0].collidepoint(pos):  # Botão Menu
+            state.menu_active = True
+            state.game_started = False
+        elif buttons[1].collidepoint(pos):  # Botão Reiniciar
+            game.reset()
+
+
     @staticmethod
     def handle(event: pygame.event.Event, state: GameState, game):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            InputHandler._handle_mouse_click(event.pos, state, game)
-        elif event.type == pygame.KEYDOWN and not state.game_started:
-            InputHandler._handle_key_input(event, state)
+            if state.menu_active:
+                InputHandler._handle_menu_click(event.pos, state, game)
+            else:
+                InputHandler._handle_game_click(event.pos, state, game)
+                
+        elif event.type == pygame.KEYDOWN and state.menu_active:
+            InputHandler._handle_menu_key_input(event, state)
+
+    @staticmethod
+    def _handle_menu_click(pos: Tuple[int, int], state: GameState, game):
+        # Campos de nome
+        name_rects = [
+            pygame.Rect(Config.WIDTH//2 - 150, Config.HEIGHT//2 - 150, 300, 40),  # Ajustado para posição correta
+            pygame.Rect(Config.WIDTH//2 - 150, Config.HEIGHT//2 - 90, 300, 40)  # Adicionado espaçamento correto
+        ]
+        
+        # Botões de tempo
+        time_y = Config.HEIGHT//2 - 30  # Posição Y calculada
+        time_buttons = [
+            pygame.Rect(Config.WIDTH//2 - 55 + i*140, time_y, 110, 40)  # Ajustado para centralizar melhor
+            for i in range(3)
+        ]
+        
+        # Botão Iniciar
+        start_rect = pygame.Rect(Config.WIDTH//2 - 100, time_y + 70, 200, 50)
+        
+        # Verificação de colisão
+        for i, rect in enumerate(name_rects):
+            if rect.collidepoint(pos):
+                state.input_active = f'player{i+1}'
+                return
+                
+        for i, rect in enumerate(time_buttons):
+            if rect.collidepoint(pos):
+                state.selected_duration = Config.TIME_OPTIONS[i]
+                return
+                
+        if start_rect.collidepoint(pos):
+            state.menu_active = False
+            state.game_started = True
+            state.time_remaining = state.selected_duration
+
+    @staticmethod
+    def _handle_menu_key_input(event: pygame.event.Event, state: GameState):
+        if state.input_active == 'player1':
+            if event.key == pygame.K_BACKSPACE:
+                state.player1_name = state.player1_name[:-1]
+            elif event.unicode.isprintable() and len(state.player1_name) < 15:
+                state.player1_name += event.unicode
+        elif state.input_active == 'player2':
+            if event.key == pygame.K_BACKSPACE:
+                state.player2_name = state.player2_name[:-1]
+            elif event.unicode.isprintable() and len(state.player2_name) < 15:
+                state.player2_name += event.unicode
 
     @staticmethod
     def _handle_mouse_click(pos: Tuple[int, int], state: GameState, game):
@@ -429,7 +588,9 @@ class Game:
         self.ball.draw(self.window)
         self.ui.draw_scoreboard(self.window)
         
-        if self.state.game_over:
+        if self.state.menu_active:
+            self.ui.draw_menu(self.window)
+        elif self.state.game_over:
             self.ui.draw_end_game(self.window)
         
         pygame.display.flip()
