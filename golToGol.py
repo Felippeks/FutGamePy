@@ -54,8 +54,8 @@ class GameState:
         self.time_remaining = self.selected_duration  # Usar a duração selecionada
         self.game_started = False
         self.game_over = False
-        self.player1_name = "Jogador 1"
-        self.player2_name = "Jogador 2"
+        self.player1_name = ""
+        self.player2_name = ""
         self.input_active: Optional[str] = None
         self.menu_active = True  
 
@@ -306,10 +306,10 @@ class UIManager:
         spacing = 60
         
         # Nome Jogador 1
-        self._draw_menu_input(surface, "Jogador 1:", self.state.player1_name, 
+        self._draw_menu_input(surface, "Player 1:", self.state.player1_name, 
                             elements_y, 'player1')
         # Nome Jogador 2
-        self._draw_menu_input(surface, "Jogador 2:", self.state.player2_name, 
+        self._draw_menu_input(surface, "Player 2:", self.state.player2_name, 
                             elements_y + spacing, 'player2')
         # Tempo de Jogo
         self._draw_time_buttons(surface, elements_y + spacing * 2)
@@ -319,7 +319,8 @@ class UIManager:
     def _draw_menu_input(self, surface, label, value, y, field_id):
         font = self.fonts['small']
         label_text = font.render(label, True, Config.WHITE)
-        surface.blit(label_text, (Config.WIDTH//2 - 300, y))
+        label_y = y + 20 - label_text.get_height() // 2
+        surface.blit(label_text, (Config.WIDTH//2 - 300, label_y))
         
         input_rect = pygame.Rect(
             Config.WIDTH//2 - 50,
@@ -330,14 +331,17 @@ class UIManager:
         color = Config.GOLD if self.state.input_active == field_id else Config.WHITE
         pygame.draw.rect(surface, color, input_rect, 2)
         
-        text = self.fonts['small'].render(value, True, Config.WHITE)
+        # Exibe "Insira seu nome" se o campo estiver vazio e não estiver ativo
+        displayed_text = value if (self.state.input_active == field_id or value) else "Insert name"
+        text = font.render(displayed_text, True, Config.WHITE)
         text_rect = text.get_rect(center=input_rect.center)
         surface.blit(text, text_rect)
 
     def _draw_time_buttons(self, surface, y):
         font = self.fonts['small']
-        label_text = font.render("Tempo de Jogo:", True, Config.WHITE)
-        surface.blit(label_text, (Config.WIDTH//2 - 300, y))
+        label_text = font.render("Time Game:", True, Config.WHITE)
+        label_y = y + 20 - label_text.get_height() // 2  # Centralizar verticalmente
+        surface.blit(label_text, (Config.WIDTH//2 - 300, label_y))
         
         options = ['1 MIN', '3 MIN', '5 MIN']
         x_pos = Config.WIDTH//2 - 50
@@ -419,6 +423,10 @@ class InputHandler:
                 return
                 
         if start_rect.collidepoint(pos):
+            if not state.player1_name.strip():
+                state.player1_name = "Player 1"
+            if not state.player2_name.strip():
+                state.player2_name = "Player 2"
             state.menu_active = False
             state.game_started = True
             state.time_remaining = state.selected_duration
@@ -427,12 +435,14 @@ class InputHandler:
     def _handle_menu_key_input(event: pygame.event.Event, state: GameState):
         if state.input_active == 'player1':
             if event.key == pygame.K_BACKSPACE:
-                state.player1_name = state.player1_name[:-1]
+                if state.player1_name:  
+                    state.player1_name = state.player1_name[:-1]
             elif event.unicode.isprintable() and len(state.player1_name) < 15:
                 state.player1_name += event.unicode
         elif state.input_active == 'player2':
             if event.key == pygame.K_BACKSPACE:
-                state.player2_name = state.player2_name[:-1]
+                if state.player2_name:  
+                    state.player2_name = state.player2_name[:-1]
             elif event.unicode.isprintable() and len(state.player2_name) < 15:
                 state.player2_name += event.unicode
 
