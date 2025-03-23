@@ -17,8 +17,8 @@ class Config:
     BLUE = (0, 0, 255)
     PADDLE_WIDTH, PADDLE_HEIGHT = 65, 80
     PLAYER_SPEED = 7
-    BALL_SIZE = 40
-    BALL_SPEED = 5
+    BALL_SIZE = 50
+    BALL_SPEED = 7
     GOAL_HEIGHT = 150
     BUTTON_WIDTH, BUTTON_HEIGHT = 150, 37
     NAME_FIELD_WIDTH = 300
@@ -165,6 +165,7 @@ class UIManager:
             size: AssetLoader.load_font("PressStart2P-Regular.ttf", Config.FONT_SIZES[size])
             for size in ['normal', 'small', 'large']
         }
+        self.fonts['button'] = AssetLoader.load_font("PressStart2P-Regular.ttf", 10)
         self.grass = AssetLoader.load_image("imagens/grass.png", 
             (Config.FIELD_WIDTH, Config.FIELD_HEIGHT))
 
@@ -210,13 +211,30 @@ class UIManager:
     def _draw_scores(self, surface: pygame.Surface):
         name1 = self.fonts['small'].render(self.state.player1_name, True, Config.WHITE)
         name2 = self.fonts['small'].render(self.state.player2_name, True, Config.WHITE)
-        surface.blit(name1, (Config.WIDTH//4 - name1.get_width()//2, 20))
-        surface.blit(name2, (3*Config.WIDTH//4 - name2.get_width()//2, 20))
-        
         score1 = self.fonts['normal'].render(str(self.state.player1_score), True, Config.WHITE)
         score2 = self.fonts['normal'].render(str(self.state.player2_score), True, Config.WHITE)
-        surface.blit(score1, (Config.WIDTH//4 - score1.get_width()//2, 50))
-        surface.blit(score2, (3*Config.WIDTH//4 - score2.get_width()//2, 50))
+        
+        # Desenhar nome e placar do Jogador 1 com separador
+        surface.blit(name1, (Config.WIDTH//4 - name1.get_width()//2, 20))
+        self._draw_separator(surface, Config.WIDTH//4 + name1.get_width()//2 + 20, 20)
+        surface.blit(score1, (Config.WIDTH//4 + name1.get_width()//2 + 60, 20))  # Mais espaço
+        
+        # Desenhar nome e placar do Jogador 2 com separador
+        surface.blit(name2, (3*Config.WIDTH//4 - name2.get_width()//2, 20))
+        self._draw_separator(surface, 3*Config.WIDTH//4 + name2.get_width()//2 + 20, 20)
+        surface.blit(score2, (3*Config.WIDTH//4 + name2.get_width()//2 + 60, 20))  # Mais espaço
+
+    def _draw_separator(self, surface: pygame.Surface, x: int, y: int):
+        # Desenhar contorno branco
+        separator_outline = self.fonts['normal'].render("|", True, Config.WHITE)
+        surface.blit(separator_outline, (x - 2, y - 2))
+        surface.blit(separator_outline, (x + 2, y - 2))
+        surface.blit(separator_outline, (x - 2, y + 2))
+        surface.blit(separator_outline, (x + 2, y + 2))
+        
+        # Desenhar pipe amarelo
+        separator = self.fonts['normal'].render("|", True, Config.GOLD)
+        surface.blit(separator, (x, y))
 
     def _draw_timer(self, surface: pygame.Surface):
         timer_text = self.fonts['normal'].render(
@@ -227,15 +245,15 @@ class UIManager:
     def _draw_buttons(self, surface: pygame.Surface):
         buttons = [
             (10, 10, "Menu"),  # Alterado para Menu
-            (Config.WIDTH - Config.BUTTON_WIDTH - 10, 10, "Reiniciar")
+            (Config.WIDTH - Config.BUTTON_WIDTH + 50 - 10, 10, "Reiniciar")
         ]
         
         for x, y, text in buttons:
-            rect = pygame.Rect(x, y, Config.BUTTON_WIDTH, Config.BUTTON_HEIGHT)
+            rect = pygame.Rect(x, y, Config.BUTTON_WIDTH - 50, Config.BUTTON_HEIGHT - 10)
             pygame.draw.rect(surface, Config.WHITE, rect)
-            text_surf = self.fonts['small'].render(text, True, Config.BLACK)
-            surface.blit(text_surf, (x + Config.BUTTON_WIDTH//2 - text_surf.get_width()//2, 
-                                   y + Config.BUTTON_HEIGHT//2 - text_surf.get_height()//2))
+            text_surf = self.fonts['button'].render(text, True, Config.BLACK)
+            surface.blit(text_surf, (x + (Config.BUTTON_WIDTH - 50)//2 - text_surf.get_width()//2, 
+                                   y + (Config.BUTTON_HEIGHT - 10)//2 - text_surf.get_height()//2))
 
     def draw_end_game(self, surface: pygame.Surface):
         if self.state.player1_score > self.state.player2_score:
