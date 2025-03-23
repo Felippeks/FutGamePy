@@ -8,7 +8,7 @@ pygame.init()
 pygame.font.init()
 
 # Configurações da janela
-WIDTH, HEIGHT = 1200, 800
+WIDTH, HEIGHT = 1400, 900
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Futebol Game Desktop")
 
@@ -171,28 +171,35 @@ class Game:
         timer_text = self.font.render(f"{minutes}:{seconds:02d}", True, WHITE)
         WIN.blit(timer_text, (WIDTH//2 - timer_text.get_width()//2, 20))
 
+        # Nomes dos jogadores
+        player1_name_text = self.font.render(self.player1_name if self.player1_name else "Nome Jogador 1", True, WHITE)
+        player2_name_text = self.font.render(self.player2_name if self.player2_name else "Nome Jogador 2", True, WHITE)
+        WIN.blit(player1_name_text, (WIDTH//4 - player1_name_text.get_width()//2, 60))
+        WIN.blit(player2_name_text, (3*WIDTH//4 - player2_name_text.get_width()//2, 60))
+
     def handle_input(self):
-        keys = pygame.key.get_pressed()
-        
-        # Movimento Player 1
-        if keys[pygame.K_w] and self.paddle1.top > 0:
-            self.paddle1.y -= 7
-        if keys[pygame.K_s] and self.paddle1.bottom < HEIGHT:
-            self.paddle1.y += 7
-        if keys[pygame.K_a] and self.paddle1.left > 0:
-            self.paddle1.x -= 7
-        if keys[pygame.K_d] and self.paddle1.right < WIDTH//2:
-            self.paddle1.x += 7
+        if self.input_active is None and self.game_started:
+            keys = pygame.key.get_pressed()
             
-        # Movimento Player 2
-        if keys[pygame.K_UP] and self.paddle2.top > 0:
-            self.paddle2.y -= 7
-        if keys[pygame.K_DOWN] and self.paddle2.bottom < HEIGHT:
-            self.paddle2.y += 7
-        if keys[pygame.K_LEFT] and self.paddle2.left > WIDTH//2:
-            self.paddle2.x -= 7
-        if keys[pygame.K_RIGHT] and self.paddle2.right < WIDTH:
-            self.paddle2.x += 7
+            # Movimento Player 1
+            if keys[pygame.K_w] and self.paddle1.top > 0:
+                self.paddle1.y -= 7
+            if keys[pygame.K_s] and self.paddle1.bottom < HEIGHT:
+                self.paddle1.y += 7
+            if keys[pygame.K_a] and self.paddle1.left > 0:
+                self.paddle1.x -= 7
+            if keys[pygame.K_d] and self.paddle1.right < WIDTH//2:
+                self.paddle1.x += 7
+                
+            # Movimento Player 2
+            if keys[pygame.K_UP] and self.paddle2.top > 0:
+                self.paddle2.y -= 7
+            if keys[pygame.K_DOWN] and self.paddle2.bottom < HEIGHT:
+                self.paddle2.y += 7
+            if keys[pygame.K_LEFT] and self.paddle2.left > WIDTH//2:
+                self.paddle2.x -= 7
+            if keys[pygame.K_RIGHT] and self.paddle2.right < WIDTH:
+                self.paddle2.x += 7
 
     def draw_buttons(self):
         # Desenhar botão de iniciar
@@ -207,13 +214,34 @@ class Game:
         reset_text = self.button_font.render("Reiniciar", True, BLACK)
         WIN.blit(reset_text, (reset_button_rect.centerx - reset_text.get_width()//2, reset_button_rect.centery - reset_text.get_height()//2))
 
+        # Desenhar campos de entrada para nomes dos jogadores
+        player1_name_rect = pygame.Rect(10, HEIGHT - BUTTON_HEIGHT - 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+        pygame.draw.rect(WIN, WHITE, player1_name_rect)
+        player1_name_text = self.button_font.render(self.player1_name if self.player1_name else "Nome Jogador 1", True, BLACK)
+        WIN.blit(player1_name_text, (player1_name_rect.x + 5, player1_name_rect.y + 5))
+
+        player2_name_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, HEIGHT - BUTTON_HEIGHT - 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+        pygame.draw.rect(WIN, WHITE, player2_name_rect)
+        player2_name_text = self.button_font.render(self.player2_name if self.player2_name else "Nome Jogador 2", True, BLACK)
+        WIN.blit(player2_name_text, (player2_name_rect.x + 5, player2_name_rect.y + 5))
+
     def check_button_click(self, pos):
         start_button_rect = pygame.Rect(10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
         reset_button_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+        player1_name_rect = pygame.Rect(10, HEIGHT - BUTTON_HEIGHT - 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+        player2_name_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, HEIGHT - BUTTON_HEIGHT - 10, BUTTON_WIDTH, BUTTON_HEIGHT)
+
         if start_button_rect.collidepoint(pos):
             self.start_game()
         elif reset_button_rect.collidepoint(pos):
             self.reset_game()
+        elif not self.game_started:  # Permitir edição de nomes apenas se o jogo não estiver iniciado
+            if player1_name_rect.collidepoint(pos):
+                self.input_active = 'player1'
+            elif player2_name_rect.collidepoint(pos):
+                self.input_active = 'player2'
+            else:
+                self.input_active = None
 
     def draw_end_game_message(self):
         if self.player1_score > self.player2_score:
@@ -237,6 +265,18 @@ class Game:
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     self.check_button_click(event.pos)
+                elif event.type == pygame.KEYDOWN:
+                    if not self.game_started:  # Permitir edição de nomes apenas se o jogo não estiver iniciado
+                        if self.input_active == 'player1':
+                            if event.key == pygame.K_BACKSPACE:
+                                self.player1_name = self.player1_name[:-1]
+                            elif event.unicode.isprintable():
+                                self.player1_name += event.unicode
+                        elif self.input_active == 'player2':
+                            if event.key == pygame.K_BACKSPACE:
+                                self.player2_name = self.player2_name[:-1]
+                            elif event.unicode.isprintable():
+                                self.player2_name += event.unicode
                 elif event.type == self.timer_event and self.game_started:
                     self.time_remaining -= 1
                     if self.time_remaining <= 0:
@@ -272,6 +312,7 @@ class Game:
     def start_game(self):
         self.reset_game()
         self.game_started = True
+        self.input_active = None  # Desativar a entrada de nome ao iniciar o jogo
         self.time_remaining = self.game_time
         self.game_over = False
 
