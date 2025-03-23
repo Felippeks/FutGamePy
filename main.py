@@ -111,7 +111,12 @@ class Game:
         half_hitbox_h = hitbox_height / 2
 
         # Colisão com bordas do campo
-        if self.ball.top <= 50 or self.ball.bottom >= FIELD_HEIGHT + 50:
+        if self.ball.top <= 50:
+            self.ball.top = 50
+            self.ball_speed_y *= -1
+            self.ball_rotation_speed = random.uniform(-0.2, 0.2)
+        elif self.ball.bottom >= FIELD_HEIGHT + 50:
+            self.ball.bottom = FIELD_HEIGHT + 50
             self.ball_speed_y *= -1
             self.ball_rotation_speed = random.uniform(-0.2, 0.2)
 
@@ -127,12 +132,16 @@ class Game:
                 min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
                 
                 if min_overlap == overlap_left:
+                    self.ball.right = paddle.left
                     self.ball_speed_x = -abs(self.ball_speed_x)
                 elif min_overlap == overlap_right:
+                    self.ball.left = paddle.right
                     self.ball_speed_x = abs(self.ball_speed_x)
                 elif min_overlap == overlap_top:
+                    self.ball.bottom = paddle.top
                     self.ball_speed_y = -abs(self.ball_speed_y)
                 else:
+                    self.ball.top = paddle.bottom
                     self.ball_speed_y = abs(self.ball_speed_y)
                 
                 # Ajuste de velocidade
@@ -145,12 +154,14 @@ class Game:
                 self.player2_score += 1
                 self.reset_ball(False)
             else:
+                self.ball.left = 100
                 self.ball_speed_x = abs(self.ball_speed_x)
         elif self.ball.right >= FIELD_WIDTH + 100:
             if (HEIGHT - GOAL_HEIGHT)//2 < self.ball.centery < (HEIGHT + GOAL_HEIGHT)//2:
                 self.player1_score += 1
                 self.reset_ball(True)
             else:
+                self.ball.right = FIELD_WIDTH + 100
                 self.ball_speed_x = -abs(self.ball_speed_x)
 
     def reset_ball(self, player1_scored):
