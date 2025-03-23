@@ -205,7 +205,6 @@ class UIManager:
     def draw_scoreboard(self, surface: pygame.Surface):
         self._draw_scores(surface)
         self._draw_timer(surface)
-        self._draw_name_inputs(surface)
         self._draw_buttons(surface)
 
     def _draw_scores(self, surface: pygame.Surface):
@@ -224,20 +223,6 @@ class UIManager:
             f"{self.state.time_remaining//60}:{self.state.time_remaining%60:02d}", 
             True, Config.WHITE)
         surface.blit(timer_text, (Config.WIDTH//2 - timer_text.get_width()//2, 20))
-
-    def _draw_name_inputs(self, surface: pygame.Surface):
-        name_rects = [
-            (10, Config.FIELD_HEIGHT + 60, self.state.player1_name),
-            (Config.WIDTH - Config.NAME_FIELD_WIDTH - 10, 
-             Config.FIELD_HEIGHT + 60, self.state.player2_name)
-        ]
-        
-        for x, y, name in name_rects:
-            text = self.fonts['small'].render(name, True, Config.BLACK)
-            rect = pygame.Rect(x, y, Config.NAME_FIELD_WIDTH, Config.BUTTON_HEIGHT)
-            pygame.draw.rect(surface, Config.WHITE, rect)
-            surface.blit(text, (x + Config.NAME_FIELD_WIDTH//2 - text.get_width()//2, 
-                             y + Config.BUTTON_HEIGHT//2 - text.get_height()//2))
 
     def _draw_buttons(self, surface: pygame.Surface):
         buttons = [
@@ -445,22 +430,8 @@ class InputHandler:
             state.time_remaining = Config.GAME_DURATION
         elif reset_rect.collidepoint(pos):
             game.reset()
-        else:
-            InputHandler._check_name_input_click(pos, state)
+    
 
-    @staticmethod
-    def _check_name_input_click(pos: Tuple[int, int], state: GameState):
-        name_rects = [
-            pygame.Rect(10, Config.FIELD_HEIGHT + 60, 
-                       Config.NAME_FIELD_WIDTH, Config.BUTTON_HEIGHT),
-            pygame.Rect(Config.WIDTH - Config.NAME_FIELD_WIDTH - 10, 
-                       Config.FIELD_HEIGHT + 60, Config.NAME_FIELD_WIDTH, Config.BUTTON_HEIGHT)
-        ]
-        for i, rect in enumerate(name_rects):
-            if rect.collidepoint(pos):
-                state.input_active = f'player{i+1}'
-                return
-        state.input_active = None
 
     @staticmethod
     def _handle_key_input(event: pygame.event.Event, state: GameState):
