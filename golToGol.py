@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 import random
 import math
 
@@ -49,9 +50,9 @@ class Game:
         self.reset_game()
         
         # UI e fontes
-        self.font = pygame.font.Font("PressStart2P-Regular.ttf", 24) if pygame.font.get_init() else None
-        self.button_font = pygame.font.Font("PressStart2P-Regular.ttf", 14) if pygame.font.get_init() else None
-        self.end_game_font = pygame.font.Font("PressStart2P-Regular.ttf", 48) if pygame.font.get_init() else None
+        self.font = pygame.font.Font(self.resource_path("PressStart2P-Regular.ttf"), 24) if pygame.font.get_init() else None
+        self.button_font = pygame.font.Font(self.resource_path("PressStart2P-Regular.ttf"), 14) if pygame.font.get_init() else None
+        self.end_game_font = pygame.font.Font(self.resource_path("PressStart2P-Regular.ttf"), 48) if pygame.font.get_init() else None
         self.time_remaining = self.game_time
         self.timer_event = pygame.USEREVENT + 1
         self.player1_name = "Nome Jogador 1"
@@ -64,8 +65,18 @@ class Game:
             'up': False, 'down': False, 'left': False, 'right': False
         }
 
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
+
     def load_image(self, path, size=None):
-        img = pygame.image.load(path)
+        img = pygame.image.load(self.resource_path(path))
         return pygame.transform.scale(img, size) if size else img
 
     def reset_game(self):

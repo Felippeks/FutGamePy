@@ -1,0 +1,16 @@
+
+/dist/
+/build/
+
+/# Ignore other common files and directories
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+*.env
+*.venv
+*.idea
+*.vscode
+.DS_Store
