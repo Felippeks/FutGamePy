@@ -8,7 +8,7 @@ pygame.init()
 pygame.font.init()
 
 # Configurações da janela
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1200, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Futebol Game Desktop")
 
