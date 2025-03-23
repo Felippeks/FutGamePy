@@ -17,6 +17,8 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 100, 0)
 GOLD = (255, 215, 0)
+DARK_GOLD = (218, 165, 32)
+BLUE = (0, 0, 255)
 
 # Constantes do jogo
 FIELD_WIDTH, FIELD_HEIGHT = 1400, 900  # Tamanho do campo de futebol
@@ -49,6 +51,7 @@ class Game:
         # UI e fontes
         self.font = pygame.font.Font("PressStart2P-Regular.ttf", 24) if pygame.font.get_init() else None
         self.button_font = pygame.font.Font("PressStart2P-Regular.ttf", 14) if pygame.font.get_init() else None
+        self.end_game_font = pygame.font.Font("PressStart2P-Regular.ttf", 48) if pygame.font.get_init() else None
         self.time_remaining = self.game_time
         self.timer_event = pygame.USEREVENT + 1
         self.player1_name = "Nome Jogador 1"
@@ -250,16 +253,32 @@ class Game:
             else:
                 self.input_active = None
 
+    def draw_text_with_outline(self, text, font, color, outline_color, x, y):
+        outline_width = 2
+        text_surface = font.render(text, True, color)
+        outline_surface = font.render(text, True, outline_color)
+        
+        for dx in [-outline_width, 0, outline_width]:
+            for dy in [-outline_width, 0, outline_width]:
+                if dx != 0 or dy != 0:
+                    WIN.blit(outline_surface, (x + dx, y + dy))
+        
+        WIN.blit(text_surface, (x, y))
+
     def draw_end_game_message(self):
         if self.player1_score > self.player2_score:
             winner_text = "Jogador 1 Venceu!"
+            winner_color = DARK_GOLD
         elif self.player2_score > self.player1_score:
             winner_text = "Jogador 2 Venceu!"
+            winner_color = DARK_GOLD
         else:
             winner_text = "Empate!"
+            winner_color = BLUE
 
-        end_game_text = self.font.render(winner_text, True, WHITE)
-        WIN.blit(end_game_text, (WIDTH//2 - end_game_text.get_width()//2, HEIGHT//2 - end_game_text.get_height()//2))
+        text_x = WIDTH // 2 - self.end_game_font.size(winner_text)[0] // 2
+        text_y = HEIGHT // 2 - self.end_game_font.size(winner_text)[1] // 2
+        self.draw_text_with_outline(winner_text, self.end_game_font, winner_color, BLACK, text_x, text_y)
 
     def run(self):
         clock = pygame.time.Clock()
