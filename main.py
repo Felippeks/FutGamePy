@@ -8,7 +8,7 @@ pygame.init()
 pygame.font.init()
 
 # Configurações da janela
-WIDTH, HEIGHT = 1400, 900
+WIDTH, HEIGHT = 1600, 1000  # Aumentar o tamanho da tela
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Futebol Game Desktop")
 
@@ -19,6 +19,7 @@ GREEN = (0, 100, 0)
 GOLD = (255, 215, 0)
 
 # Constantes do jogo
+FIELD_WIDTH, FIELD_HEIGHT = 1400, 900  # Tamanho do campo de futebol
 PADDLE_WIDTH = 65
 PADDLE_HEIGHT = 80
 BALL_SIZE = 40
@@ -35,7 +36,7 @@ class Game:
     def __init__(self):
         # Carregar recursos
         self.soccer_ball = self.load_image("imagens/soccer_ball.png", (BALL_SIZE, BALL_SIZE))
-        self.grass = self.load_image("imagens/grass.png", (WIDTH, HEIGHT))
+        self.grass = self.load_image("imagens/grass.png", (FIELD_WIDTH, FIELD_HEIGHT))
         self.player1_img = self.load_image("imagens/player1.png", (PADDLE_WIDTH, PADDLE_HEIGHT))
         self.player2_img = self.load_image("imagens/player2.png", (PADDLE_WIDTH, PADDLE_HEIGHT))
         
@@ -50,8 +51,8 @@ class Game:
         self.button_font = pygame.font.Font("PressStart2P-Regular.ttf", 14) if pygame.font.get_init() else None
         self.time_remaining = self.game_time
         self.timer_event = pygame.USEREVENT + 1
-        self.player1_name = ""
-        self.player2_name = ""
+        self.player1_name = "Nome Jogador 1"
+        self.player2_name = "Nome Jogador 2"
         self.input_active = None
         
         # Controles
@@ -66,9 +67,9 @@ class Game:
 
     def reset_game(self):
         # Posições iniciais
-        self.paddle1 = pygame.Rect(0, (HEIGHT - PADDLE_HEIGHT)//2, PADDLE_WIDTH, PADDLE_HEIGHT)
-        self.paddle2 = pygame.Rect(WIDTH - PADDLE_WIDTH, (HEIGHT - PADDLE_HEIGHT)//2, PADDLE_WIDTH, PADDLE_HEIGHT)
-        self.ball = pygame.Rect(WIDTH//2 - BALL_SIZE//2, HEIGHT//2 - BALL_SIZE//2, BALL_SIZE, BALL_SIZE)
+        self.paddle1 = pygame.Rect(100, (FIELD_HEIGHT - PADDLE_HEIGHT)//2 + 50, PADDLE_WIDTH, PADDLE_HEIGHT)
+        self.paddle2 = pygame.Rect(FIELD_WIDTH - PADDLE_WIDTH + 100, (FIELD_HEIGHT - PADDLE_HEIGHT)//2 + 50, PADDLE_WIDTH, PADDLE_HEIGHT)
+        self.ball = pygame.Rect(FIELD_WIDTH//2 - BALL_SIZE//2 + 100, FIELD_HEIGHT//2 - BALL_SIZE//2 + 50, BALL_SIZE, BALL_SIZE)
         
         # Velocidades e ângulos
         self.ball_speed_x = BALL_SPEED * random.choice([-1, 1])
@@ -85,19 +86,19 @@ class Game:
 
     def draw_field(self):
         # Fundo e linhas do campo
-        WIN.blit(self.grass, (0, 0))
+        WIN.blit(self.grass, (100, 50))  # Desenhar o campo com margem
         
         # Linhas brancas
-        pygame.draw.line(WIN, WHITE, (WIDTH//2, 0), (WIDTH//2, HEIGHT), 2)
-        pygame.draw.rect(WIN, WHITE, (0, 0, WIDTH, HEIGHT), 2)
+        pygame.draw.line(WIN, WHITE, (WIDTH//2, 50), (WIDTH//2, FIELD_HEIGHT + 50), 2)
+        pygame.draw.rect(WIN, WHITE, (100, 50, FIELD_WIDTH, FIELD_HEIGHT), 2)
         
         # Gols
-        pygame.draw.rect(WIN, GOLD, (0, (HEIGHT - GOAL_HEIGHT)//2, 10, GOAL_HEIGHT))
-        pygame.draw.rect(WIN, GOLD, (WIDTH-10, (HEIGHT - GOAL_HEIGHT)//2, 10, GOAL_HEIGHT))
+        pygame.draw.rect(WIN, GOLD, (100, (HEIGHT - GOAL_HEIGHT)//2, 10, GOAL_HEIGHT))
+        pygame.draw.rect(WIN, GOLD, (FIELD_WIDTH + 90, (HEIGHT - GOAL_HEIGHT)//2, 10, GOAL_HEIGHT))
         
         # Áreas de penalidade
-        pygame.draw.rect(WIN, WHITE, (0, (HEIGHT - GOAL_HEIGHT)//2 - 50, 100, GOAL_HEIGHT + 100), 2)
-        pygame.draw.rect(WIN, WHITE, (WIDTH - 100, (HEIGHT - GOAL_HEIGHT)//2 - 50, 100, GOAL_HEIGHT + 100), 2)
+        pygame.draw.rect(WIN, WHITE, (100, (HEIGHT - GOAL_HEIGHT)//2 - 50, 100, GOAL_HEIGHT + 100), 2)
+        pygame.draw.rect(WIN, WHITE, (FIELD_WIDTH, (HEIGHT - GOAL_HEIGHT)//2 - 50, 100, GOAL_HEIGHT + 100), 2)
         
         # Círculo central
         pygame.draw.circle(WIN, WHITE, (WIDTH//2, HEIGHT//2), 80, 2)
@@ -109,8 +110,8 @@ class Game:
         half_hitbox_w = hitbox_width / 2
         half_hitbox_h = hitbox_height / 2
 
-        # Colisão com bordas
-        if self.ball.top <= 0 or self.ball.bottom >= HEIGHT:
+        # Colisão com bordas do campo
+        if self.ball.top <= 50 or self.ball.bottom >= FIELD_HEIGHT + 50:
             self.ball_speed_y *= -1
             self.ball_rotation_speed = random.uniform(-0.2, 0.2)
 
@@ -139,13 +140,13 @@ class Game:
                 self.ball_rotation_speed = random.uniform(-0.2, 0.2)
 
         # Verificação de gols
-        if self.ball.left <= 0:
+        if self.ball.left <= 100:
             if (HEIGHT - GOAL_HEIGHT)//2 < self.ball.centery < (HEIGHT + GOAL_HEIGHT)//2:
                 self.player2_score += 1
                 self.reset_ball(False)
             else:
                 self.ball_speed_x = abs(self.ball_speed_x)
-        elif self.ball.right >= WIDTH:
+        elif self.ball.right >= FIELD_WIDTH + 100:
             if (HEIGHT - GOAL_HEIGHT)//2 < self.ball.centery < (HEIGHT + GOAL_HEIGHT)//2:
                 self.player1_score += 1
                 self.reset_ball(True)
@@ -173,33 +174,38 @@ class Game:
         WIN.blit(timer_text, (WIDTH//2 - timer_text.get_width()//2, 20))
 
         # Nomes dos jogadores
-        player1_name_text = self.font.render(self.player1_name if self.player1_name else "Nome Jogador 1", True, WHITE)
-        player2_name_text = self.font.render(self.player2_name if self.player2_name else "Nome Jogador 2", True, WHITE)
-        WIN.blit(player1_name_text, (WIDTH//4 - player1_name_text.get_width()//2, 60))
-        WIN.blit(player2_name_text, (3*WIDTH//4 - player2_name_text.get_width()//2, 60))
+        player1_name_text = self.button_font.render(self.player1_name, True, BLACK)
+        player2_name_text = self.button_font.render(self.player2_name, True, BLACK)
+        
+        # Desenhar fundo branco para o texto do nome do jogador
+        pygame.draw.rect(WIN, WHITE, (10, FIELD_HEIGHT + 60, NAME_FIELD_WIDTH, BUTTON_HEIGHT))
+        pygame.draw.rect(WIN, WHITE, (WIDTH - NAME_FIELD_WIDTH - 10, FIELD_HEIGHT + 60, NAME_FIELD_WIDTH, BUTTON_HEIGHT))
+        
+        WIN.blit(player1_name_text, (10 + NAME_FIELD_WIDTH//2 - player1_name_text.get_width()//2, FIELD_HEIGHT + 60 + BUTTON_HEIGHT//2 - player1_name_text.get_height()//2))
+        WIN.blit(player2_name_text, (WIDTH - NAME_FIELD_WIDTH - 10 + NAME_FIELD_WIDTH//2 - player2_name_text.get_width()//2, FIELD_HEIGHT + 60 + BUTTON_HEIGHT//2 - player2_name_text.get_height()//2))
 
     def handle_input(self):
         if self.input_active is None and self.game_started:
             keys = pygame.key.get_pressed()
             
             # Movimento Player 1
-            if keys[pygame.K_w] and self.paddle1.top > 0:
+            if keys[pygame.K_w] and self.paddle1.top > 50:
                 self.paddle1.y -= 7
-            if keys[pygame.K_s] and self.paddle1.bottom < HEIGHT:
+            if keys[pygame.K_s] and self.paddle1.bottom < FIELD_HEIGHT + 50:
                 self.paddle1.y += 7
-            if keys[pygame.K_a] and self.paddle1.left > 0:
+            if keys[pygame.K_a] and self.paddle1.left > 100:
                 self.paddle1.x -= 7
             if keys[pygame.K_d] and self.paddle1.right < WIDTH//2:
                 self.paddle1.x += 7
                 
             # Movimento Player 2
-            if keys[pygame.K_UP] and self.paddle2.top > 0:
+            if keys[pygame.K_UP] and self.paddle2.top > 50:
                 self.paddle2.y -= 7
-            if keys[pygame.K_DOWN] and self.paddle2.bottom < HEIGHT:
+            if keys[pygame.K_DOWN] and self.paddle2.bottom < FIELD_HEIGHT + 50:
                 self.paddle2.y += 7
             if keys[pygame.K_LEFT] and self.paddle2.left > WIDTH//2:
                 self.paddle2.x -= 7
-            if keys[pygame.K_RIGHT] and self.paddle2.right < WIDTH:
+            if keys[pygame.K_RIGHT] and self.paddle2.right < FIELD_WIDTH + 100:
                 self.paddle2.x += 7
 
     def draw_buttons(self):
@@ -215,22 +221,11 @@ class Game:
         reset_text = self.button_font.render("Reiniciar", True, BLACK)
         WIN.blit(reset_text, (reset_button_rect.centerx - reset_text.get_width()//2, reset_button_rect.centery - reset_text.get_height()//2))
 
-        # Desenhar campos de entrada para nomes dos jogadores
-        player1_name_rect = pygame.Rect(10, HEIGHT - BUTTON_HEIGHT - 10, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
-        pygame.draw.rect(WIN, WHITE, player1_name_rect)
-        player1_name_text = self.button_font.render(self.player1_name if self.player1_name else "Nome Jogador 1", True, BLACK)
-        WIN.blit(player1_name_text, (player1_name_rect.centerx - player1_name_text.get_width()//2, player1_name_rect.centery - player1_name_text.get_height()//2))
-
-        player2_name_rect = pygame.Rect(WIDTH - NAME_FIELD_WIDTH - 10, HEIGHT - BUTTON_HEIGHT - 10, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
-        pygame.draw.rect(WIN, WHITE, player2_name_rect)
-        player2_name_text = self.button_font.render(self.player2_name if self.player2_name else "Nome Jogador 2", True, BLACK)
-        WIN.blit(player2_name_text, (player2_name_rect.centerx - player2_name_text.get_width()//2, player2_name_rect.centery - player2_name_text.get_height()//2))
-
     def check_button_click(self, pos):
         start_button_rect = pygame.Rect(10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
         reset_button_rect = pygame.Rect(WIDTH - BUTTON_WIDTH - 10, 10, BUTTON_WIDTH, BUTTON_HEIGHT)
-        player1_name_rect = pygame.Rect(10, HEIGHT - BUTTON_HEIGHT - 10, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
-        player2_name_rect = pygame.Rect(WIDTH - NAME_FIELD_WIDTH - 10, HEIGHT - BUTTON_HEIGHT - 10, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
+        player1_name_rect = pygame.Rect(10, FIELD_HEIGHT + 60, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
+        player2_name_rect = pygame.Rect(WIDTH - NAME_FIELD_WIDTH - 10, FIELD_HEIGHT + 60, NAME_FIELD_WIDTH, BUTTON_HEIGHT)
 
         if start_button_rect.collidepoint(pos):
             self.start_game()
@@ -297,11 +292,11 @@ class Game:
             self.draw_field()
             
             # Desenhar elementos
-            WIN.blit(self.player1_img, self.paddle1)
-            WIN.blit(self.player2_img, self.paddle2)
+            WIN.blit(self.player1_img, (self.paddle1.x, self.paddle1.y))
+            WIN.blit(self.player2_img, (self.paddle2.x, self.paddle2.y))
             
             rotated_ball = pygame.transform.rotate(self.soccer_ball, self.ball_angle)
-            WIN.blit(rotated_ball, self.ball.topleft)
+            WIN.blit(rotated_ball, (self.ball.x, self.ball.y))
             
             self.draw_ui()
             self.draw_buttons()
