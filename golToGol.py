@@ -45,6 +45,8 @@ class AssetLoader:
 
 class GameState:
     def __init__(self):
+        pygame.init()
+        pygame.mixer.init()
         self.reset()
         
     def reset(self):
@@ -58,7 +60,31 @@ class GameState:
         self.player2_name = ""
         self.input_active: Optional[str] = None
         self.menu_active = True
-        self.is_paused = False 
+        self.is_paused = False
+
+
+class SoundManager:
+    def __init__(self):
+        self.goal_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/goal.wav"))
+        self.collision_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/collision.wav"))
+        self.button_click_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/button_click.wav"))
+        self.button_hover_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/button_hover.wav"))
+        self.start_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/start.wav"))
+
+    def play_goal_sound(self):
+        self.goal_sound.play()
+
+    def play_collision_sound(self):
+        self.collision_sound.play()
+
+    def play_button_click_sound(self):
+        self.button_click_sound.play()
+
+    def play_button_hover_sound(self):
+        self.button_hover_sound.play()
+
+    def play_start_sound(self):  
+        self.start_sound.play()
 
 class Ball:
     def __init__(self):
@@ -128,13 +154,15 @@ class Paddle:
 
 class PhysicsEngine:
     @staticmethod
-    def handle_collisions(ball: Ball, paddles: list[Paddle]):
+    def handle_collisions(ball: Ball, paddles: list[Paddle], sound_manager: SoundManager):
         if ball.rect.top <= Config.FIELD_OFFSET_Y:
             ball.rect.top = Config.FIELD_OFFSET_Y
             ball.speed_y *= -1
+            sound_manager.play_collision_sound()
         elif ball.rect.bottom >= Config.FIELD_OFFSET_Y + Config.FIELD_HEIGHT:
             ball.rect.bottom = Config.FIELD_OFFSET_Y + Config.FIELD_HEIGHT
             ball.speed_y *= -1
+            sound_manager.play_collision_sound()
 
         for paddle in paddles:
             dx = ball.rect.centerx - paddle.rect.centerx
@@ -146,22 +174,26 @@ class PhysicsEngine:
                 ball.speed_x = Config.BALL_SPEED * math.cos(angle) # type: ignore
                 ball.speed_y = Config.BALL_SPEED * math.sin(angle)
                 ball.rotation_speed = random.uniform(-8, 8)
+                sound_manager.play_collision_sound()
 
         if ball.rect.left <= Config.FIELD_OFFSET_X:
             if (Config.HEIGHT - Config.GOAL_HEIGHT)//2 < ball.rect.centery < (Config.HEIGHT + Config.GOAL_HEIGHT)//2:
+                sound_manager.play_goal_sound()
                 return "player2"
             ball.rect.left = Config.FIELD_OFFSET_X
             ball.speed_x = abs(ball.speed_x)
         elif ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH:
             if (Config.HEIGHT - Config.GOAL_HEIGHT)//2 < ball.rect.centery < (Config.HEIGHT + Config.GOAL_HEIGHT)//2:
+                sound_manager.play_goal_sound()
                 return "player1"
             ball.rect.right = Config.FIELD_OFFSET_X + Config.FIELD_WIDTH
             ball.speed_x = -abs(ball.speed_x)
         return None
-
 class UIManager:
-    def __init__(self, state: GameState):
+    def __init__(self, state: GameState, sound_manager: SoundManager):
         self.state = state
+        self.sound_manager = sound_manager  # Adicione esta linha
+        self.hovered_button = None 
         self.fonts = {
             size: AssetLoader.load_font("PressStart2P-Regular.ttf", Config.FONT_SIZES[size])
             for size in ['normal', 'small', 'large']
@@ -244,14 +276,26 @@ class UIManager:
             (10, 10, "Menu"),
             (Config.WIDTH - Config.BUTTON_WIDTH + 50 - 10, 10, pause_text)
         ]
+
+        mouse_pos = pygame.mouse.get_pos()
         
         for x, y, text in buttons:
             rect = pygame.Rect(x, y, Config.BUTTON_WIDTH - 50, Config.BUTTON_HEIGHT - 10)
-            pygame.draw.rect(surface, Config.WHITE, rect, border_radius=15)
+            
+            if rect.collidepoint(mouse_pos):
+                if self.hovered_button != rect:
+                    self.sound_manager.play_button_hover_sound()
+                    self.hovered_button = rect
+                pygame.draw.rect(surface, Config.GOLD, rect, border_radius=15)
+            else:
+                if self.hovered_button == rect:
+                    self.hovered_button = None
+                pygame.draw.rect(surface, Config.WHITE, rect, border_radius=15)
+                
             pygame.draw.rect(surface, Config.BLACK, rect, 2, border_radius=15)
             text_surf = self.fonts['button'].render(text, True, Config.BLACK)
             surface.blit(text_surf, (x + (Config.BUTTON_WIDTH - 50)//2 - text_surf.get_width()//2, 
-                                   y + (Config.BUTTON_HEIGHT - 10)//2 - text_surf.get_height()//2))
+                                y + (Config.BUTTON_HEIGHT - 10)//2 - text_surf.get_height()//2))
 
     def draw_end_game(self, surface: pygame.Surface):
         if self.state.player1_score > self.state.player2_score:
@@ -363,6 +407,13 @@ class UIManager:
         text_surf = self.fonts['small'].render(text, True, Config.WHITE)
         text_rect = text_surf.get_rect(center=button_rect.center)
         surface.blit(text_surf, text_rect)
+
+        if button_rect.collidepoint(pygame.mouse.get_pos()):
+            if self.hovered_button != button_rect:
+                self.sound_manager.play_button_hover_sound()
+                self.hovered_button = button_rect
+        elif self.hovered_button == button_rect:
+            self.hovered_button = None
 class InputHandler:
     @staticmethod
     def _handle_game_click(pos: Tuple[int, int], state: GameState, game):
@@ -378,6 +429,7 @@ class InputHandler:
             state.is_paused = False  # Resetar pausa ao voltar ao menu
         elif buttons[1].collidepoint(pos):
             state.is_paused = not state.is_paused  # Alternar estado de pausa
+            game.sound_manager.play_start_sound()
 
 
     @staticmethod
@@ -425,6 +477,9 @@ class InputHandler:
                 state.player1_name = "Player 1"
             if not state.player2_name.strip():
                 state.player2_name = "Player 2"
+
+            # Tocar som de início
+            game.sound_manager.play_start_sound()
             
             # Resetar estado do jogo
             state.player1_score = 0
@@ -486,11 +541,13 @@ class InputHandler:
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init()
         self.window = pygame.display.set_mode((Config.WIDTH, Config.HEIGHT))
         pygame.display.set_caption("Futebol Game Desktop")
         
         self.state = GameState()
-        self.ui = UIManager(self.state)
+        self.sound_manager = SoundManager()
+        self.ui = UIManager(self.state, self.sound_manager)
         self.ball = Ball()
         self.paddles = [
             Paddle("imagens/player1.png", (
@@ -560,7 +617,7 @@ class Game:
         if self.state.game_started and not self.state.game_over and not self.state.is_paused:
             self._move_players()
             self.ball.update()
-            result = PhysicsEngine.handle_collisions(self.ball, self.paddles)
+            result = PhysicsEngine.handle_collisions(self.ball, self.paddles, self.sound_manager)
             if result == "player1":
                 self.state.player1_score += 1
                 self.ball.reset(-1)
