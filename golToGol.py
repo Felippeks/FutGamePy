@@ -87,11 +87,6 @@ class SoundManager:
         # Iniciar som de fundo
         self.background_channel.play(self.background_sound, loops=-1)
 
-    def toggle_volume(self):
-        current_volume = self.background_channel.get_volume()
-        new_volume = 0.5 if current_volume == 1.0 else 1.0
-        self.set_volume(new_volume)
-
     def toggle_mute(self):
         self.is_muted = not self.is_muted
         self.set_volume(0 if self.is_muted else 1.0)
@@ -442,35 +437,21 @@ class UIManager:
         # Botão Iniciar
         self._draw_menu_button(surface, "GAME START", elements_y + spacing * 3)
 
-         # Adicionar botões de controle de volume e mute
-        volume_rect = pygame.Rect(Config.WIDTH//2 - 200, elements_y + spacing * 4 + 20, 150, 50)
-        mute_rect = pygame.Rect(Config.WIDTH//2 + 50, elements_y + spacing * 4 + 20, 150, 50)
-        
-        pygame.draw.rect(surface, Config.GOLD, volume_rect, border_radius=20)
-        pygame.draw.rect(surface, Config.WHITE, volume_rect, 3, border_radius=20)
-        volume_text = self.fonts['small'].render("Volume", True, Config.WHITE)
-        volume_text_rect = volume_text.get_rect(center=volume_rect.center)
-        surface.blit(volume_text, volume_text_rect)
-        
-        pygame.draw.rect(surface, Config.GOLD, mute_rect, border_radius=20)
-        pygame.draw.rect(surface, Config.WHITE, mute_rect, 3, border_radius=20)
+        # Adicionar botão de mute centralizado abaixo do botão "GAME START"
+        self.mute_rect = pygame.Rect(Config.WIDTH//2 - 75, elements_y + spacing * 4 + 20, 150, 50)
+                
+        pygame.draw.rect(surface, Config.GOLD, self.mute_rect, border_radius=20)
+        pygame.draw.rect(surface, Config.WHITE, self.mute_rect, 3, border_radius=20)
         mute_text = self.fonts['small'].render("Mute", True, Config.WHITE)
-        mute_text_rect = mute_text.get_rect(center=mute_rect.center)
+        mute_text_rect = mute_text.get_rect(center=self.mute_rect.center)
         surface.blit(mute_text, mute_text_rect)
 
         mouse_pos = pygame.mouse.get_pos()
-        if volume_rect.collidepoint(mouse_pos):
-            if self.hovered_button != volume_rect:
+        if self.mute_rect.collidepoint(mouse_pos):
+            if self.hovered_button != self.mute_rect:
                 self.sound_manager.play_button_hover_sound()
-                self.hovered_button = volume_rect
-        elif self.hovered_button == volume_rect:
-            self.hovered_button = None
-
-        if mute_rect.collidepoint(mouse_pos):
-            if self.hovered_button != mute_rect:
-                self.sound_manager.play_button_hover_sound()
-                self.hovered_button = mute_rect
-        elif self.hovered_button == mute_rect:
+                self.hovered_button = self.mute_rect
+        elif self.hovered_button == self.mute_rect:
             self.hovered_button = None
 
     def _draw_menu_input(self, surface, label, value, y, field_id):
@@ -560,6 +541,7 @@ class InputHandler:
 
    
     @staticmethod
+    @staticmethod
     def _handle_menu_click(pos: Tuple[int, int], state: GameState, game):
         # Campos de nome
         name_rects = [
@@ -577,14 +559,10 @@ class InputHandler:
         # Botão Iniciar
         start_rect = pygame.Rect(Config.WIDTH//2 - 100, time_y + 70, 200, 50)
 
-        # Botões de controle de volume e mute
-        volume_rect = pygame.Rect(Config.WIDTH//2 - 200, time_y + 130, 150, 50)
-        mute_rect = pygame.Rect(Config.WIDTH//2 + 50, time_y + 130, 150, 50)
+        # Botões de mute
+        mute_rect = pygame.Rect(Config.WIDTH//2 - 75, time_y + 130, 150, 50)
         
-        if volume_rect.collidepoint(pos):
-            game.sound_manager.toggle_volume()
-            return
-        elif mute_rect.collidepoint(pos):
+        if mute_rect.collidepoint(pos):
             game.sound_manager.toggle_mute()
             return
         
