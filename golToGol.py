@@ -71,28 +71,44 @@ class SoundManager:
         self.channel_start = pygame.mixer.Channel(0)
         self.channel_effects = pygame.mixer.Channel(1)
         self.channel_goal = pygame.mixer.Channel(2)
+        self.background_channel = pygame.mixer.Channel(3)
 
-
-        # Modificação para acelerar os sons
+        # Primeiro carregar todos os sons
+        self._load_sounds()
+        
+        # Depois acelerar
         self._speed_up_sounds()
 
         # Configurar prioridades
         self.channel_start.set_volume(1.0)
         self.channel_effects.set_volume(0.8)
+        
+        # Iniciar som de fundo
+        self.background_channel.play(self.background_sound, loops=-1)
 
-        # Carregar sons
-        self.goal_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/goal.wav"))
-        self.collision_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/collision.wav"))
-        self.button_click_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/button_click.wav"))
-        self.button_hover_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/button_hover.wav"))
-        self.start_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/start.wav"))
+    def _load_sounds(self):
+        """Carrega todos os recursos de áudio"""
+        try:
+            # Carregar sons
+            self.goal_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/goal.wav"))
+            self.collision_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/collision.wav"))
+            self.button_click_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/button_click.wav"))
+            self.button_hover_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/button_hover.wav"))
+            self.start_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/start.wav"))
+            self.background_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/background.wav"))
 
+            # Configurar volumes
+            self.start_sound.set_volume(1.0)
+            self.button_hover_sound.set_volume(0.7)
+            self.button_click_sound.set_volume(0.7)
+            self.goal_sound.set_volume(1.0)
+            self.collision_sound.set_volume(0.5)
+            self.background_sound.set_volume(0.3)
+            
+        except Exception as e:
+            print(f"Erro ao carregar sons: {e}")
+            raise SystemExit  # Encerra o jogo se não carregar os sons
 
-        self.start_sound.set_volume(1.0)
-        self.button_hover_sound.set_volume(0.7)
-        self.button_click_sound.set_volume(0.7)
-        self.goal_sound.set_volume(1.0)
-        self.collision_sound.set_volume(0.5)
 
         # Pré-aquecer os buffers
         self.start_sound.play().stop()

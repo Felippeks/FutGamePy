@@ -5,7 +5,7 @@ a = Analysis(
     ['golToGol.py'],
     pathex=[],
     binaries=[],
-    datas=[('imagens', 'imagens'), ('PressStart2P-Regular.ttf', '.')],
+    datas=[('imagens', 'imagens'), ('PressStart2P-Regular.ttf', '.'), ('sons', 'sons')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
