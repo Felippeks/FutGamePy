@@ -30,7 +30,7 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/felippeks/FutGamePy.git
+   git clone https://github.com/Felippeks/FutGamePy.git
    cd gamePython
    ```
 
