@@ -40,7 +40,7 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
    ```
 3. Execute o jogo:
    ```bash
-   python main.py
+   python -m src.main
    ```
    
 4. Estrutura de arquivos necessária:
@@ -74,8 +74,8 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
     │   ├── physics_engine.py
     │   ├── sound_manager.py
     │   ├── ui_manager.py
-    │   └── __init__.py
-    └── main.py
+    │   ├── __init__.py
+    │   └── main.py
    ```
 
 ## 🕹 Como Jogar
