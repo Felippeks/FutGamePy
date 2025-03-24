@@ -3,6 +3,8 @@ import sys
 import os
 import random
 import math
+import numpy as np
+import pygame.sndarray
 from typing import Tuple, Optional
 
 # Configurações principais
@@ -46,7 +48,6 @@ class AssetLoader:
 class GameState:
     def __init__(self):
         pygame.init()
-        pygame.mixer.init()
         self.reset()
         
     def reset(self):
@@ -65,26 +66,77 @@ class GameState:
 
 class SoundManager:
     def __init__(self):
+        # Configurar canais dedicados
+        pygame.mixer.set_num_channels(4)
+        self.channel_start = pygame.mixer.Channel(0)
+        self.channel_effects = pygame.mixer.Channel(1)
+        self.channel_goal = pygame.mixer.Channel(2)
+
+
+        # Modificação para acelerar os sons
+        self._speed_up_sounds()
+
+        # Configurar prioridades
+        self.channel_start.set_volume(1.0)
+        self.channel_effects.set_volume(0.8)
+
+        # Carregar sons
         self.goal_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/goal.wav"))
         self.collision_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/collision.wav"))
         self.button_click_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/button_click.wav"))
         self.button_hover_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/button_hover.wav"))
         self.start_sound = pygame.mixer.Sound(AssetLoader.resource_path("sons/start.wav"))
 
+
+        self.start_sound.set_volume(1.0)
+        self.button_hover_sound.set_volume(0.7)
+        self.button_click_sound.set_volume(0.7)
+        self.goal_sound.set_volume(1.0)
+        self.collision_sound.set_volume(0.5)
+
+        # Pré-aquecer os buffers
+        self.start_sound.play().stop()
+        self.button_hover_sound.play().stop()
+        self.button_click_sound.play().stop()
+        self.goal_sound.play().stop()
+        self.collision_sound.play().stop()
+
+
+    def _speed_up_sounds(self):
+        try:
+            self.goal_sound = self._adjust_speed(self.goal_sound, 2.0)
+            self.collision_sound = self._adjust_speed(self.collision_sound, 2.0)
+            self.button_click_sound = self._adjust_speed(self.button_click_sound, 2.0)
+            self.button_hover_sound = self._adjust_speed(self.button_hover_sound, 2.0)
+            self.start_sound = self._adjust_speed(self.start_sound, 2.0)
+        except Exception as e:
+            print(f"Erro ao acelerar sons: {e}")
+
+    def _adjust_speed(self, sound, speed_factor):
+        array = pygame.sndarray.array(sound)
+        
+        # Reduz o número de samples para simular aumento de velocidade
+        new_length = int(len(array) / speed_factor)
+        indices = np.linspace(0, len(array), num=new_length).astype(int)
+        sped_up = array[indices]
+        
+        return pygame.sndarray.make_sound(sped_up)
+
+
     def play_goal_sound(self):
-        self.goal_sound.play()
+        self.channel_goal.play(self.goal_sound)  # Usar o canal dedicado
 
     def play_collision_sound(self):
-        self.collision_sound.play()
+        self.channel_effects.play(self.collision_sound)
 
     def play_button_click_sound(self):
-        self.button_click_sound.play()
+        self.channel_start.play(self.button_click_sound)
 
     def play_button_hover_sound(self):
-        self.button_hover_sound.play()
+        self.channel_start.play(self.button_hover_sound)
 
     def play_start_sound(self):  
-        self.start_sound.play()
+        self.channel_start.play(self.start_sound)
 
 class Ball:
     def __init__(self):
@@ -541,7 +593,7 @@ class InputHandler:
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.mixer.init()
+        pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
         self.window = pygame.display.set_mode((Config.WIDTH, Config.HEIGHT))
         pygame.display.set_caption("Futebol Game Desktop")
         
