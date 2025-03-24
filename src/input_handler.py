@@ -177,42 +177,42 @@ class InputHandler:
         # Calcular posições relativas igual ao UI
         menu_width = 780
         menu_height = 450
-        menu_rect_y = (Config.HEIGHT - 450) // 2
+        menu_rect_y = (Config.HEIGHT - menu_height) // 2
 
         # Player 1
-        player1_y = menu_rect_y + 70
+        player1_y = menu_rect_y + 100  # Antes era 70
         for i in range(2):
             rect = pygame.Rect(
-                Config.WIDTH // 2 - 100 + i * 200,
-                player1_y,
-                180,
-                40
+                Config.WIDTH // 2 - 90 + i * 180,  # Ajuste de posicionamento horizontal
+                player1_y + 5,  # Offset para match com o desenho
+                170,
+                30
             )
             if rect.collidepoint(pos):
                 state.player1_control = ["wasd", "virtual"][i]
                 game.sound_manager.play_button_click_sound()
 
         # Player 2
-        player2_y = menu_rect_y + 200
+        player2_y = menu_rect_y + 250  # Antes era 200
         for i in range(2):
             rect = pygame.Rect(
-                Config.WIDTH // 2 - 100 + i * 200,
-                player2_y,
-                180,
-                40
+                Config.WIDTH // 2 - 90 + i * 180,  # Ajuste de posicionamento horizontal
+                player2_y + 5,  # Offset para match com o desenho
+                170,
+                30
             )
             if rect.collidepoint(pos):
                 state.player2_control = ["arrows", "cpu"][i]
                 game.sound_manager.play_button_click_sound()
 
         # Botão Voltar
-        back_rect = pygame.Rect(
-            Config.WIDTH // 2 - 100,
-            menu_rect_y + 350,
-            200,
-            50
-        )
-        if back_rect.collidepoint(pos):
-            state.controls_menu_active = False
-            state.menu_active = True
-            game.sound_manager.play_button_click_sound()
+            back_rect = pygame.Rect(
+                Config.WIDTH // 2 - 100,
+                menu_rect_y + 380,
+                200,
+                50
+            )
+            if back_rect.collidepoint(pos):
+                state.controls_menu_active = False
+                state.menu_active = True
+                game.sound_manager.play_button_click_sound()

@@ -210,15 +210,15 @@ class UIManager:
 
     def _draw_mute_button(self, surface, y):
         button_rect = pygame.Rect(
-            Config.WIDTH // 2 - 75,
+            Config.WIDTH // 2 - 100,
             y,
-            150,
+            200,
             50
         )
 
         pygame.draw.rect(surface, Config.GOLD, button_rect, border_radius=20)
         pygame.draw.rect(surface, Config.WHITE, button_rect, 3, border_radius=20)
-        mute_text = self.fonts['small'].render("Mute", True, Config.WHITE)
+        mute_text = self.fonts['small'].render("MUTE", True, Config.WHITE)
         mute_text_rect = mute_text.get_rect(center=button_rect.center)
         surface.blit(mute_text, mute_text_rect)
 
@@ -240,7 +240,7 @@ class UIManager:
         )
         pygame.draw.rect(surface, Config.GOLD, button_rect, border_radius=20)
         pygame.draw.rect(surface, Config.WHITE, button_rect, 3, border_radius=20)
-        text_surf = self.fonts['small'].render("Controles", True, Config.WHITE)
+        text_surf = self.fonts['small'].render("CONTROLS", True, Config.WHITE)
         text_rect = text_surf.get_rect(center=button_rect.center)
         surface.blit(text_surf, text_rect)
 
@@ -278,15 +278,16 @@ class UIManager:
         pygame.draw.rect(surface, Config.GOLD, menu_rect, 3, border_radius=20)
 
         # Título
-        title = self.fonts['large'].render("CONTROLES", True, Config.WHITE)
-        surface.blit(title, (Config.WIDTH // 2 - title.get_width() // 2, menu_rect.y + 15))
+        title = self.fonts['large'].render("CONTROLS", True, Config.WHITE)
+        title_y = menu_rect.y + 30  # Posição ajustada
+        surface.blit(title, (Config.WIDTH // 2 - title.get_width() // 2, title_y))
 
         # Configurações Player 1
         self._draw_control_option(
             surface, "Player 1:",
             [("WASD", "wasd"), ("Virtual", "virtual")],
             self.state.player1_control,
-            menu_rect.y + 70
+            menu_rect.y + 100
         )
 
         # Configurações Player 2
@@ -294,16 +295,18 @@ class UIManager:
             surface, "Player 2:",
             [("Setas", "arrows"), ("CPU", "cpu")],
             self.state.player2_control,
-            menu_rect.y + 200
+            menu_rect.y + 250
         )
 
         # Botão Voltar
-        self._draw_back_button(surface, menu_rect.y + 350)
+        self._draw_back_button(surface, menu_rect.y + 380)
 
     def _draw_control_option(self, surface, label, options, current, y):
         font = self.fonts['small']
+        # Centralizar verticalmente com os botões
+        label_y = y + 20 - font.get_height() // 2
         label_text = font.render(label, True, Config.WHITE)
-        surface.blit(label_text, (Config.WIDTH // 2 - 350, y))
+        surface.blit(label_text, (Config.WIDTH // 2 - 350, label_y))
 
         for i, (display_text, value) in enumerate(options):
             # Ajuste fino no posicionamento
@@ -325,11 +328,11 @@ class UIManager:
             Config.WIDTH // 2 - 100,
             y + 10,
             200,
-            40
+            50
         )
         pygame.draw.rect(surface, Config.GOLD, button_rect, border_radius=20)
         pygame.draw.rect(surface, Config.WHITE, button_rect, 3, border_radius=20)
-        text_surf = self.fonts['small'].render("Voltar", True, Config.WHITE)
+        text_surf = self.fonts['small'].render("BACK", True, Config.WHITE)
         text_rect = text_surf.get_rect(center=button_rect.center)
         surface.blit(text_surf, text_rect)
 
