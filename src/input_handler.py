@@ -33,9 +33,9 @@ class InputHandler:
         if buttons[0].collidepoint(pos):
             state.menu_active = True
             state.game_started = False
-            state.is_paused = False  # Resetar pausa ao voltar ao menu
+            state.is_paused = False  
         elif buttons[1].collidepoint(pos):
-            state.is_paused = not state.is_paused  # Alternar estado de pausa
+            state.is_paused = not state.is_paused 
             game.sound_manager.play_start_sound()
 
     @staticmethod
@@ -45,14 +45,14 @@ class InputHandler:
         """
         # Campos de nome
         name_rects = [
-            pygame.Rect(Config.WIDTH//2 - 150, Config.HEIGHT//2 - 150, 300, 40),  # Ajustado para posição correta
-            pygame.Rect(Config.WIDTH//2 - 150, Config.HEIGHT//2 - 90, 300, 40)  # Adicionado espaçamento correto
+            pygame.Rect(Config.WIDTH//2 - 150, Config.HEIGHT//2 - 150, 300, 40),  
+            pygame.Rect(Config.WIDTH//2 - 150, Config.HEIGHT//2 - 90, 300, 40)  
         ]
         
         # Botões de tempo
-        time_y = Config.HEIGHT//2 - 30  # Posição Y calculada
+        time_y = Config.HEIGHT//2 - 30
         time_buttons = [
-            pygame.Rect(Config.WIDTH//2 - 55 + i*140, time_y, 110, 40)  # Ajustado para centralizar melhor
+            pygame.Rect(Config.WIDTH//2 - 55 + i*140, time_y, 110, 40)
             for i in range(3)
         ]
         

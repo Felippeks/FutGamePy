@@ -84,13 +84,13 @@ class UIManager:
         
         # Desenhar nome e placar do Jogador 1 com imagem do cabeçalho
         surface.blit(name1, (Config.WIDTH//4 - name1.get_width()//2, 20))
-        surface.blit(self.head1, (Config.WIDTH//4 + name1.get_width()//2 + 20, 10))  # Adicionar imagem do cabeçalho
-        surface.blit(score1, (Config.WIDTH//4 + name1.get_width()//2 + 90, 18))  # Mais espaço
+        surface.blit(self.head1, (Config.WIDTH//4 + name1.get_width()//2 + 20, 10))
+        surface.blit(score1, (Config.WIDTH//4 + name1.get_width()//2 + 90, 18))
         
         # Desenhar nome e placar do Jogador 2 com imagem do cabeçalho
         surface.blit(name2, (3*Config.WIDTH//4 - name2.get_width()//2, 20))
-        surface.blit(self.head2, (3*Config.WIDTH//4 + name2.get_width()//2 + 20, 10))  # Adicionar imagem do cabeçalho
-        surface.blit(score2, (3*Config.WIDTH//4 + name2.get_width()//2 + 90, 18))  # Mais espaço
+        surface.blit(self.head2, (3*Config.WIDTH//4 + name2.get_width()//2 + 20, 10))
+        surface.blit(score2, (3*Config.WIDTH//4 + name2.get_width()//2 + 90, 18))
 
     def _draw_timer(self, surface: pygame.Surface):
         """
@@ -262,9 +262,6 @@ class UIManager:
             surface.blit(text, text_rect)
 
     def _draw_menu_button(self, surface, text, y):
-        """
-        Desenha um botão no menu.
-        """
         button_rect = pygame.Rect(
             Config.WIDTH//2 - 100,
             y,

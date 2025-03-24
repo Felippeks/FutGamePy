@@ -66,7 +66,7 @@ class SoundManager:
             
         except Exception as e:
             print(f"Erro ao carregar sons: {e}")
-            raise SystemExit  # Encerra o jogo se não carregar os sons
+            raise SystemExit
 
         # Pré-aquecer os buffers
         self.start_sound.play().stop()
