@@ -36,27 +36,46 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
 
 2. Instale as dependências:
    ```bash
-   pip install pygame numpy
+   pip install -r requirements.txt
    ```
-
-3. Estrutura de arquivos necessária:
+3. Execute o jogo:
+   ```bash
+   python main.py
+   ```
+   
+4. Estrutura de arquivos necessária:
    ```
    .
-   ├── imagens/
-   │   ├── soccer_ball.png
-   │   ├── player1.png
-   │   ├── player2.png
-   │   ├── head1.png
-   │   ├── head2.png
-   │   └── grass.png
-   ├── sons/
-   │   ├── goal.wav
-   │   ├── collision.wav
-   │   ├── button_click.wav
-   │   ├── button_hover.wav
-   │   ├── start.wav
-   │   └── background.wav
-   └── PressStart2P-Regular.ttf
+    ├── assets/
+    │   ├── fonts/
+    │   │   └── PressStart2P-Regular.ttf
+    │   ├── imagens/
+    │   │   ├── soccer_ball.png
+    │   │   ├── player1.png
+    │   │   ├── player2.png
+    │   │   ├── head1.png
+    │   │   ├── head2.png
+    │   │   └── grass.png
+    │   └── sons/
+    │       ├── goal.wav
+    │       ├── collision.wav
+    │       ├── button_click.wav
+    │       ├── button_hover.wav
+    │       ├── start.wav
+    │       └── background.wav
+    ├── src/
+    │   ├── asset_loader.py
+    │   ├── ball.py
+    │   ├── config.py
+    │   ├── game.py
+    │   ├── game_state.py
+    │   ├── input_handler.py
+    │   ├── paddle.py
+    │   ├── physics_engine.py
+    │   ├── sound_manager.py
+    │   ├── ui_manager.py
+    │   └── __init__.py
+    └── main.py
    ```
 
 ## 🕹 Como Jogar
@@ -99,19 +118,6 @@ class Config:
     TIME_OPTIONS = [60, 180, 300]  # Opções de tempo em segundos
 ```
 
-
-**requirements.txt**
-```
-pygame==2.1.3
-numpy==1.23.5
-```
-
-**Para executar:**
-```bash
-pip install -r requirements.txt
-python main.py
-```
-
 **Observações importantes:**
 1. Os arquivos de som (.wav) e imagens (.png) precisam ser obtidos separadamente
 2. A fonte PressStart2P pode ser baixada gratuitamente em: https://fonts.google.com/specimen/Press+Start+2P
@@ -137,13 +143,3 @@ pyinstaller --onefile --windowed --add-data "imagens;imagens" --add-data "sons;s
 ## 📄 Licença
 
 Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-## ✨ Reconhecimentos
-
-- Música e efeitos sonoros: [Freesound](https://freesound.org/)
-- Fonte: ["Press Start 2P"](https://fonts.google.com/specimen/Press+Start+2P) por Cody "CodeMan38" Boisclair
-- Assets visuais: [OpenGameArt](https://opengameart.org/)
-
----
-
-**Nota:** Certifique-se de ter todos os arquivos de recursos (imagens/sons) no local correto antes de executar o jogo.
