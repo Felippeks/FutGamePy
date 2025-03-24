@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('imagens', 'imagens'), ('PressStart2P-Regular.ttf', '.')],
+    datas=[('assets/imagens', 'assets/imagens'), ('assets/sons', 'assets/sons'), ('assets/fonts', 'assets/fonts')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
