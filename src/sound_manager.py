@@ -3,6 +3,10 @@ from .asset_loader import AssetLoader
 
 class SoundManager:
     def __init__(self):
+        # Inicializar o mixer com um buffer menor para reduzir o atraso
+        pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=256)
+        pygame.init()
+        
         # Configurar canais dedicados
         pygame.mixer.set_num_channels(4)
         self.channel_start = pygame.mixer.Channel(0)
@@ -17,6 +21,8 @@ class SoundManager:
         # Configurar prioridades
         self.channel_start.set_volume(1.0)
         self.channel_effects.set_volume(0.8)
+        self.channel_goal.set_volume(1.0)
+        self.background_channel.set_volume(0.3)
         
         # Iniciar som de fundo
         self.background_channel.play(self.background_sound, loops=-1)
@@ -79,7 +85,7 @@ class SoundManager:
         """
         Reproduz o som de colisão.
         """
-        self.channel_effects.play(self.collision_sound)
+        self.channel_effects.play(self.collision_sound, maxtime=0, fade_ms=0)
 
     def play_button_click_sound(self):
         """

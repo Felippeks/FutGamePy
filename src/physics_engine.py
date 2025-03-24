@@ -13,6 +13,7 @@ class PhysicsEngine:
         Lida com as colisões da bola com as bordas do campo e com as raquetes.
         Retorna o jogador que marcou um gol, se houver.
         """
+        # Colisão com as bordas superior e inferior do campo
         if ball.rect.top <= Config.FIELD_OFFSET_Y:
             ball.rect.top = Config.FIELD_OFFSET_Y
             ball.speed_y *= -1
@@ -22,6 +23,7 @@ class PhysicsEngine:
             ball.speed_y *= -1
             sound_manager.play_collision_sound()
 
+        # Colisão com as raquetes
         for paddle in paddles:
             dx = ball.rect.centerx - paddle.rect.centerx
             dy = ball.rect.centery - paddle.rect.centery
@@ -34,16 +36,20 @@ class PhysicsEngine:
                 ball.rotation_speed = random.uniform(-8, 8)
                 sound_manager.play_collision_sound()
 
+        # Colisão com as bordas laterais do campo
         if ball.rect.left <= Config.FIELD_OFFSET_X:
             if (Config.HEIGHT - Config.GOAL_HEIGHT) // 2 < ball.rect.centery < (Config.HEIGHT + Config.GOAL_HEIGHT) // 2:
                 sound_manager.play_goal_sound()
                 return "player2"
             ball.rect.left = Config.FIELD_OFFSET_X
             ball.speed_x = abs(ball.speed_x)
+            sound_manager.play_collision_sound()
         elif ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH:
             if (Config.HEIGHT - Config.GOAL_HEIGHT) // 2 < ball.rect.centery < (Config.HEIGHT + Config.GOAL_HEIGHT) // 2:
                 sound_manager.play_goal_sound()
                 return "player1"
             ball.rect.right = Config.FIELD_OFFSET_X + Config.FIELD_WIDTH
             ball.speed_x = -abs(ball.speed_x)
+            sound_manager.play_collision_sound()
+        
         return None
