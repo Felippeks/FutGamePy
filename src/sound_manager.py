@@ -1,5 +1,4 @@
 import pygame
-import numpy as np
 from .asset_loader import AssetLoader
 
 class SoundManager:
@@ -12,11 +11,8 @@ class SoundManager:
         self.background_channel = pygame.mixer.Channel(3)
         self.is_muted = False
 
-        # Primeiro carregar todos os sons
+        # Carregar todos os sons
         self._load_sounds()
-        
-        # Depois acelerar
-        self._speed_up_sounds()
 
         # Configurar prioridades
         self.channel_start.set_volume(1.0)
@@ -55,7 +51,7 @@ class SoundManager:
             self.background_sound = pygame.mixer.Sound(AssetLoader.resource_path("assets/sons/background.wav"))
 
             # Configurar volumes
-            self.start_sound.set_volume(1.0)
+            self.start_sound.set_volume(0.2)
             self.button_hover_sound.set_volume(0.7)
             self.button_click_sound.set_volume(0.7)
             self.goal_sound.set_volume(1.0)
@@ -72,34 +68,6 @@ class SoundManager:
         self.button_click_sound.play().stop()
         self.goal_sound.play().stop()
         self.collision_sound.play().stop()
-
-    def _speed_up_sounds(self):
-        """
-        Acelera os sons carregados.
-        """
-        try:
-            self.goal_sound = self._adjust_speed(self.goal_sound, 2.0)
-            self.collision_sound = self._adjust_speed(self.collision_sound, 2.0)
-            self.button_click_sound = self._adjust_speed(self.button_click_sound, 2.0)
-            self.button_hover_sound = self._adjust_speed(self.button_hover_sound, 2.0)
-            self.start_sound = self._adjust_speed(self.start_sound, 2.0)
-        except Exception as e:
-            print(f"Erro ao acelerar sons: {e}")
-
-    def _adjust_speed(self, sound, speed_factor):
-        """
-        Ajusta a velocidade de reprodução de um som.
-        """
-        array = pygame.sndarray.array(sound)
-        
-        # Reduz o número de samples para simular aumento de velocidade
-        new_length = int(len(array) / speed_factor)
-        if new_length == 0:
-            new_length = 1  # Evitar divisão por zero
-        indices = np.linspace(0, len(array) - 1, num=new_length).astype(int)
-        sped_up = array[indices]
-        
-        return pygame.sndarray.make_sound(sped_up)
 
     def play_goal_sound(self):
         """

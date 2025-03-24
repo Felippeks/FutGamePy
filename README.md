@@ -30,8 +30,8 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/gol-a-gol.git
-   cd gol-a-gol
+   git clone https://github.com/felippeks/FutGamePy.git
+   cd gamePython
    ```
 
 2. Instale as dependências:
