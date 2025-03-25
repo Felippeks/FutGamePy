@@ -31,44 +31,44 @@ class Paddle:
 
     def move(self, dx: int, dy: int):
         if self.head_tracker and self.head_tracker.running:
-            # Get both coordinates
-            head_x, head_y = self.head_tracker.get_normalized_position()
+            try:
+                head_x, head_y = self.head_tracker.get_normalized_position()
 
-            # Convert to field coordinates
-            min_x = self.constraints[0]
-            max_x = self.constraints[1] - self.rect.width
-            target_x = min_x + (head_x * (max_x - min_x))
+                # Suavização adicional
+                target_x = self.constraints[0] + (
+                            head_x * (self.constraints[1] - self.constraints[0] - self.rect.width))
+                target_y = self.constraints[2] + (
+                            head_y * (self.constraints[3] - self.constraints[2] - self.rect.height))
 
-            min_y = self.constraints[2]
-            max_y = self.constraints[3] - self.rect.height
-            target_y = min_y + (head_y * (max_y - min_y))
+                # Interpolação suave
+                smooth_factor = 0.3  # Mais suave para movimentos de cabeça
+                self.rect.x += (target_x - self.rect.x) * smooth_factor
+                self.rect.y += (target_y - self.rect.y) * smooth_factor
 
-            # Calculate difference with smoothing
-            dx = (target_x - self.rect.x) * Config.HEAD_TRACKING_SMOOTHING
-            dy = (target_y - self.rect.y) * Config.HEAD_TRACKING_SMOOTHING
+                # Garantir limites
+                self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
+                self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
 
-            # Smooth movement
-            self.rect.x += int(dx)
-            self.rect.y += int(dy)
-
-            # Ensure limits
-            self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
-            self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
+            except Exception as e:
+                print(f"Erro no rastreamento: {e}")
+                # Fallback para controles manuais se o rastreamento falhar
+                self.rect.x += dx
+                self.rect.y += dy
         else:
             self.rect.x += dx
             self.rect.y += dy
 
-            # Ensure limits
-            self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
-            self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
+        # Garantir limites em qualquer caso
+        self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
+        self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
 
 
     def cpu_move(self):
         if self.ball:
             # Nova verificação de parede próxima
             near_wall = (
-                    self.ball.rect.left <= Config.FIELD_OFFSET_X + 20 or
-                    self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 20
+                self.ball.rect.left <= Config.FIELD_OFFSET_X + 20 or
+                self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 20
             )
 
             if near_wall:
@@ -129,8 +129,8 @@ class Paddle:
             if self.rect.colliderect(self.ball.rect):
                 # Verificar se está próximo das bordas
                 near_wall = (
-                        self.ball.rect.left <= Config.FIELD_OFFSET_X + 5 or
-                        self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 5
+                    self.ball.rect.left <= Config.FIELD_OFFSET_X + 5 or
+                    self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 5
                 )
 
                 # Reposicionamento mais assertivo

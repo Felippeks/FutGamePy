@@ -197,12 +197,37 @@ class InputHandler:
                 state.player1_control = new_control
                 game.sound_manager.play_button_click_sound()
 
+            # Verificar clique no botão de calibração
+            if state.player1_control == "virtual":
+                calibration_rect = pygame.Rect(
+                    Config.WIDTH // 2 - 100,
+                    player1_y + 50,
+                    200,
+                    40
+                )
+
+                if calibration_rect.collidepoint(pos):
+                    if not state.is_calibrating:
+                        # Verificar se o head_tracker foi criado
+                        if game.paddles[0].head_tracker is None:
+                            game.paddles[0].enable_head_tracking()
+
+                        # Só inicia calibração se o head_tracker estiver ativo
+                        if game.paddles[0].head_tracker and game.paddles[0].head_tracker.running:
+                            game.paddles[0].head_tracker.start_calibration()
+                            state.is_calibrating = True
+                    else:
+                        if game.paddles[0].head_tracker and game.paddles[0].head_tracker.end_calibration():
+                            state.is_calibrating = False
+                    game.sound_manager.play_button_click_sound()
+                    return
+
         # Player 2
-        player2_y = menu_rect_y + 250  # Antes era 200
+        player2_y = menu_rect_y + 250
         for i in range(2):
             rect = pygame.Rect(
-                Config.WIDTH // 2 - 90 + i * 180,  # Ajuste de posicionamento horizontal
-                player2_y + 5,  # Offset para match com o desenho
+                Config.WIDTH // 2 - 90 + i * 180,
+                player2_y + 5,
                 170,
                 30
             )
@@ -211,13 +236,13 @@ class InputHandler:
                 game.sound_manager.play_button_click_sound()
 
         # Botão Voltar
-            back_rect = pygame.Rect(
-                Config.WIDTH // 2 - 100,
-                menu_rect_y + 380,
-                200,
-                50
-            )
-            if back_rect.collidepoint(pos):
-                state.controls_menu_active = False
-                state.menu_active = True
-                game.sound_manager.play_button_click_sound()
+        back_rect = pygame.Rect(
+            Config.WIDTH // 2 - 100,
+            menu_rect_y + 380,
+            200,
+            50
+        )
+        if back_rect.collidepoint(pos):
+            state.controls_menu_active = False
+            state.menu_active = True
+            game.sound_manager.play_button_click_sound()
