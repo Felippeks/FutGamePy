@@ -136,7 +136,7 @@ class HeadTracker:
             return 0.5, 0.5  # Posição central durante calibração
 
         x, y = self._normalize_position(self.current_x, self.current_y)
-        return (1.0 - x, y)  # Inverte o eixo X para movimento mais intuitivo
+        return (x, y)  # Inverte o eixo X para movimento mais intuitivo
 
     def get_calibration_status(self) -> str:
         """Retorna o status da calibração"""

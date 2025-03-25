@@ -34,16 +34,23 @@ class Paddle:
             try:
                 head_x, head_y = self.head_tracker.get_normalized_position()
 
-                # Suavização adicional
+                # Calcular posição alvo com base nos constraints
                 target_x = self.constraints[0] + (
-                            head_x * (self.constraints[1] - self.constraints[0] - self.rect.width))
+                        head_x * (self.constraints[1] - self.constraints[0] - self.rect.width))
                 target_y = self.constraints[2] + (
-                            head_y * (self.constraints[3] - self.constraints[2] - self.rect.height))
+                        head_y * (self.constraints[3] - self.constraints[2] - self.rect.height))
 
-                # Interpolação suave
-                smooth_factor = 0.3  # Mais suave para movimentos de cabeça
-                self.rect.x += (target_x - self.rect.x) * smooth_factor
-                self.rect.y += (target_y - self.rect.y) * smooth_factor
+                # Calcular direção do movimento
+                dx = (target_x - self.rect.x) * Config.PLAYER_SPEED * 0.1  # Fator de suavização
+                dy = (target_y - self.rect.y) * Config.PLAYER_SPEED * 0.1
+
+                # Limitar a velocidade máxima
+                dx = max(min(dx, Config.PLAYER_SPEED), -Config.PLAYER_SPEED)
+                dy = max(min(dy, Config.PLAYER_SPEED), -Config.PLAYER_SPEED)
+
+                # Aplicar movimento
+                self.rect.x += dx
+                self.rect.y += dy
 
                 # Garantir limites
                 self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
@@ -61,7 +68,6 @@ class Paddle:
         # Garantir limites em qualquer caso
         self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
         self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
-
 
     def cpu_move(self):
         if self.ball:
