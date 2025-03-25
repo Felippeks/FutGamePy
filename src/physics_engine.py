@@ -6,9 +6,10 @@ from .ball import Ball
 from .paddle import Paddle
 from .sound_manager import SoundManager
 
+
 class PhysicsEngine:
     @staticmethod
-    def handle_collisions(ball: Ball, paddles: List[Paddle], sound_manager: SoundManager) -> Optional[str]:
+    def handle_collisions(ball: Ball, paddles: List[Paddle], sound_manager: SoundManager, game) -> Optional[str]:
         """
         Lida com as colisões da bola com as bordas do campo e com as raquetes.
         Retorna o jogador que marcou um gol, se houver.
@@ -28,11 +29,14 @@ class PhysicsEngine:
             dx = ball.rect.centerx - paddle.rect.centerx
             dy = ball.rect.centery - paddle.rect.centery
             distance = math.hypot(dx, dy)
-            
+
             if distance < (Config.BALL_SIZE // 2 + max(paddle.rect.width, paddle.rect.height) // 2):
                 angle = math.atan2(dy, dx)
+
+                # Mantém velocidade constante para rebatidas da CPU
                 ball.speed_x = Config.BALL_SPEED * math.cos(angle)
                 ball.speed_y = Config.BALL_SPEED * math.sin(angle)
+
                 ball.rotation_speed = random.uniform(-8, 8)
                 sound_manager.play_collision_sound()
 
