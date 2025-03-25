@@ -19,7 +19,6 @@ class UIManager:
         self.grass = AssetLoader.load_image("assets/imagens/grass.png",
             (Config.FIELD_WIDTH, Config.FIELD_HEIGHT))
 
-        # Carregar imagens dos cabeçalhos
         self.head1 = AssetLoader.load_image("assets/imagens/head1.png", (35, 30))
         self.head2 = AssetLoader.load_image("assets/imagens/head2.png", (35, 30))
 
@@ -163,7 +162,6 @@ class UIManager:
         """
         Desenha o menu principal.
         """
-        # Fundo semi-transparente
         overlay = pygame.Surface((Config.WIDTH, Config.HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 200))
         surface.blit(overlay, (0, 0))
@@ -291,7 +289,7 @@ class UIManager:
             menu_rect.y + 100
         )
 
-        # Botão de calibração (só aparece se virtual estiver selecionado)
+        # Botão de calibração
         if self.state.player1_control == "virtual":
             self._draw_calibration_button(surface, menu_rect.y + 150)
 
@@ -308,20 +306,17 @@ class UIManager:
 
     def _draw_control_option(self, surface, label, options, current, y):
         font = self.fonts['small']
-        # Centralizar verticalmente com os botões
         label_y = y + 20 - font.get_height() // 2
         label_text = font.render(label, True, Config.WHITE)
         surface.blit(label_text, (Config.WIDTH // 2 - 350, label_y))
 
         for i, (display_text, value) in enumerate(options):
-            # Ajuste fino no posicionamento
             rect = pygame.Rect(
                 Config.WIDTH // 2 - 90 + i * 180,
                 y + 5,
                 170,
                 30
             )
-            # Comparar com o valor (value) em vez do texto exibido
             color = Config.GOLD if current == value else Config.WHITE
             pygame.draw.rect(surface, color, rect, border_radius=8)
             text = font.render(display_text, True, Config.BLACK)
@@ -366,7 +361,6 @@ class UIManager:
         color = Config.GOLD if self.state.input_active == field_id else Config.WHITE
         pygame.draw.rect(surface, color, input_rect, 2, border_radius=10)
 
-        # Exibe "Insira seu nome" se o campo estiver vazio e não estiver ativo
         displayed_text = value if (self.state.input_active == field_id or value) else "Insert name"
         text = font.render(displayed_text, True, Config.WHITE)
         text_rect = text.get_rect(center=input_rect.center)
@@ -378,7 +372,7 @@ class UIManager:
         """
         font = self.fonts['small']
         label_text = font.render("Time Game:", True, Config.WHITE)
-        label_y = y + 20 - label_text.get_height() // 2  # Centralizar verticalmente
+        label_y = y + 20 - label_text.get_height() // 2
         surface.blit(label_text, (Config.WIDTH//2 - 300, label_y))
 
         options = ['1 MIN', '3 MIN', '5 MIN']
@@ -419,7 +413,6 @@ class UIManager:
             40
         )
 
-        # Cor diferente para indicar estado
         if hasattr(self.state, 'is_calibrating') and self.state.is_calibrating:
             color = Config.BLUE
             text = "CALIBRANDO..."
@@ -439,7 +432,6 @@ class UIManager:
             status_surf = self.fonts['small'].render(status_text, True, Config.WHITE)
             surface.blit(status_surf, (button_rect.x, button_rect.y + 45))
 
-        # Verificar hover/clique
         mouse_pos = pygame.mouse.get_pos()
         if button_rect.collidepoint(mouse_pos):
             if self.hovered_button != button_rect:
@@ -453,7 +445,6 @@ class UIManager:
     # Adicione este método à classe UIManager
     def draw_calibration_screen(self, surface: pygame.Surface, frame):
         """Mostra a tela de calibração com feedback visual"""
-        # Fundo escuro semi-transparente
         overlay = pygame.Surface((Config.WIDTH, Config.HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 200))
         surface.blit(overlay, (0, 0))

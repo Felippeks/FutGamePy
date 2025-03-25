@@ -34,7 +34,7 @@ class InputHandler:
         buttons = [
             pygame.Rect(10, 10, Config.BUTTON_WIDTH - 50, Config.BUTTON_HEIGHT - 10),  # Menu
             pygame.Rect(Config.WIDTH - Config.BUTTON_WIDTH + 50 - 10, 10,
-                        Config.BUTTON_WIDTH - 50, Config.BUTTON_HEIGHT - 10)  # Pausar/Continuar
+                        Config.BUTTON_WIDTH - 50, Config.BUTTON_HEIGHT - 10)
         ]
 
         if buttons[0].collidepoint(pos):
@@ -50,12 +50,10 @@ class InputHandler:
         """
         Lida com cliques no menu.
         """
-        # Obter a posição do container do menu igual ao UI
         menu_width = 780
         menu_height = 450
         menu_rect_y = (Config.HEIGHT - menu_height) // 2
 
-        # Elementos do menu (coordenadas relativas ao container)
         elements_y = menu_rect_y + 70
         spacing = 60
 
@@ -78,7 +76,7 @@ class InputHandler:
         # Botão Controles
         controls_button_rect = pygame.Rect(
             Config.WIDTH // 2 - 100,
-            time_y + 70 + spacing,  # elements_y + spacing * 4
+            time_y + 70 + spacing,
             200,
             50
         )
@@ -86,7 +84,7 @@ class InputHandler:
         # Botão Mute
         mute_rect = pygame.Rect(
             Config.WIDTH // 2 - 75,
-            time_y + 70 + spacing * 2,  # elements_y + spacing * 5
+            time_y + 70 + spacing * 2,
             150,
             50
         )
@@ -140,7 +138,7 @@ class InputHandler:
             # Verificar se clicou no botão Controles
             controls_button_rect = pygame.Rect(
                 Config.WIDTH // 2 - 100,
-                elements_y + spacing * 4,  # Ajustar conforme posição do novo botão
+                elements_y + spacing * 4,
                 200,
                 50
             )
@@ -174,7 +172,6 @@ class InputHandler:
 
     @staticmethod
     def _handle_controls_menu_click(pos: Tuple[int, int], state: GameState, game):
-        # Calcular posições relativas igual ao UI
         menu_width = 780
         menu_height = 450
         menu_rect_y = (Config.HEIGHT - menu_height) // 2
@@ -208,11 +205,9 @@ class InputHandler:
 
                 if calibration_rect.collidepoint(pos):
                     if not state.is_calibrating:
-                        # Verificar se o head_tracker foi criado
                         if game.paddles[0].head_tracker is None:
                             game.paddles[0].enable_head_tracking()
 
-                        # Só inicia calibração se o head_tracker estiver ativo
                         if game.paddles[0].head_tracker and game.paddles[0].head_tracker.running:
                             game.paddles[0].head_tracker.start_calibration()
                             state.is_calibrating = True

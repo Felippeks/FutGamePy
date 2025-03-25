@@ -9,8 +9,8 @@ class HeadTracker:
     def __init__(self):
         self.mp_face = mp.solutions.face_detection
         self.face = self.mp_face.FaceDetection(
-            min_detection_confidence=0.7,  # Aumentar confiança mínima
-            model_selection=1  # Usar modelo mais preciso
+            min_detection_confidence=0.7,
+            model_selection=1
         )
         self.cap = None
         self.current_x = 0.5
@@ -33,12 +33,12 @@ class HeadTracker:
         # Configurações ajustáveis
         self.smoothing_factor = 0.7
         self.min_movement = 0.005
-        self.movement_threshold = 0.02  # Threshold para considerar movimento válido
+        self.movement_threshold = 0.02
 
     def start(self):
         if not self.cap:
             self.cap = cv2.VideoCapture(0)
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # Aumentar resolução
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             self.cap.set(cv2.CAP_PROP_FPS, 30)
         self.running = True
@@ -61,7 +61,7 @@ class HeadTracker:
 
     def end_calibration(self):
         """Finaliza a calibração e calcula os parâmetros"""
-        if len(self.calibration_samples) < 10:  # Mínimo de amostras
+        if len(self.calibration_samples) < 10:
             print("Calibração falhou - movimentos insuficientes")
             return False
 
@@ -81,7 +81,6 @@ class HeadTracker:
 
     def _normalize_position(self, x: float, y: float) -> Tuple[float, float]:
         """Normaliza a posição com base nos dados de calibração"""
-        # Aplica calibração
         x_norm = (x - self.calibration_data['center_x']) / \
                  (self.calibration_data['max_x'] - self.calibration_data['min_x']) * 2.0
         y_norm = (y - self.calibration_data['center_y']) / \
@@ -101,7 +100,7 @@ class HeadTracker:
                     continue
 
                 # Pré-processamento da imagem
-                frame = cv2.flip(frame, 1)  # Espelhar a imagem
+                frame = cv2.flip(frame, 1)
                 rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                 # Detecção de rosto
@@ -133,10 +132,10 @@ class HeadTracker:
     def get_normalized_position(self) -> Tuple[float, float]:
         """Retorna a posição normalizada e calibrada"""
         if self.is_calibrating:
-            return 0.5, 0.5  # Posição central durante calibração
+            return 0.5, 0.5
 
         x, y = self._normalize_position(self.current_x, self.current_y)
-        return (x, y)  # Inverte o eixo X para movimento mais intuitivo
+        return (x, y)
 
     def get_calibration_status(self) -> str:
         """Retorna o status da calibração"""
