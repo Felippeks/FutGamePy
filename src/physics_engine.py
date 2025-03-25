@@ -16,7 +16,6 @@ class PhysicsEngine:
 
         # Novo método para verificar colisões persistentes nas paredes
         def _check_wall_collision_stuck():
-            # Verificar se está colado na parede com velocidade baixa
             if (ball.rect.left <= Config.FIELD_OFFSET_X + 5 or
                     ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 5):
                 if abs(ball.speed_x) < 2:
@@ -28,7 +27,7 @@ class PhysicsEngine:
         # Colisão com as bordas superior/inferior
         if ball.rect.top <= Config.FIELD_OFFSET_Y:
             ball.rect.top = Config.FIELD_OFFSET_Y + 1
-            ball.speed_y = abs(ball.speed_y) * 1.1  # Aumentar velocidade para evitar sticking
+            ball.speed_y = abs(ball.speed_y) * 1.1
             sound_manager.play_collision_sound()
         elif ball.rect.bottom >= Config.FIELD_OFFSET_Y + Config.FIELD_HEIGHT:
             ball.rect.bottom = Config.FIELD_OFFSET_Y + Config.FIELD_HEIGHT - 1
@@ -45,14 +44,12 @@ class PhysicsEngine:
             if distance < min_distance:
                 angle = math.atan2(dy, dx)
 
-                # Prevenir ângulos retos perto das paredes
                 near_wall = (
                         ball.rect.left <= Config.FIELD_OFFSET_X + 15 or
                         ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 15
                 )
 
                 if near_wall:
-                    # Forçar ângulo mais vertical
                     angle = math.radians(random.choice([75, 105, 255, 285]))
 
                 ball.speed_x = Config.BALL_SPEED * math.cos(angle)

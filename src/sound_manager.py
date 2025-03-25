@@ -79,7 +79,7 @@ class SoundManager:
         """
         Reproduz o som de gol.
         """
-        self.channel_goal.play(self.goal_sound)  # Usar o canal dedicado
+        self.channel_goal.play(self.goal_sound)
 
     def play_collision_sound(self):
         """

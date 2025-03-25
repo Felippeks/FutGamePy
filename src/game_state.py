@@ -20,8 +20,8 @@ class GameState:
         self.player2_control = "arrows"
         self.player1_score = 0
         self.player2_score = 0
-        self.selected_duration = Config.TIME_OPTIONS[0]  # Tempo padrão 1 minuto
-        self.time_remaining = self.selected_duration  # Usar a duração selecionada
+        self.selected_duration = Config.TIME_OPTIONS[0]
+        self.time_remaining = self.selected_duration
         self.game_started = False
         self.game_over = False
         self.player1_name = ""

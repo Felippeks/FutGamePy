@@ -20,11 +20,11 @@ class Paddle:
         self.head_tracker = None
 
         # Parâmetros para suavização e controle
-        self.smoothing_factor = 0.3  # Fator de suavização (0.1-0.5)
-        self.dead_zone = 0.02  # Zona morta para micro-movimentos
-        self.sensitivity_x = 1.0  # Sensibilidade horizontal (ajustada para manter velocidade)
-        self.sensitivity_y = 1.0  # Sensibilidade vertical (ajustada para manter velocidade)
-        self.edge_margin = 50  # Margem para redução de velocidade nas bordas
+        self.smoothing_factor = 0.3
+        self.dead_zone = 0.02
+        self.sensitivity_x = 1.0
+        self.sensitivity_y = 1.0
+        self.edge_margin = 50
         self.smoothed_x = constraints[0] + (constraints[1] - constraints[0]) // 2
         self.smoothed_y = constraints[2] + (constraints[3] - constraints[2]) // 2
 
@@ -91,7 +91,6 @@ class Paddle:
 
             except Exception as e:
                 print(f"Erro no rastreamento: {e}")
-                # Fallback para controles manuais
                 self.rect.x += dx
                 self.rect.y += dy
         else:
@@ -116,7 +115,7 @@ class Paddle:
 
         if near_wall:
             target_x = self.rect.centerx
-            target_y = self.rect.centery - 50  # Recua quando perto da parede
+            target_y = self.rect.centery - 50
         else:
             # Previsão de posição com erro simulado
             ball_speed_factor = 1 + (self.ball.speed_x / Config.BALL_SPEED)
@@ -132,7 +131,7 @@ class Paddle:
         dx = (target_x - self.rect.centerx) * 0.1 * momentum
         dy = (target_y - self.rect.centery) * 0.1 * momentum
 
-        # Limita velocidade máxima (usando cpu_speed como na versão original)
+        # Limita velocidade máxima
         dx = max(min(dx, self.cpu_speed), -self.cpu_speed)
         dy = max(min(dy, self.cpu_speed), -self.cpu_speed)
 
@@ -144,7 +143,7 @@ class Paddle:
         self.move(int(dx), int(dy))
 
     def check_and_reposition_ball(self):
-        """Corrige colisões persistentes com a bola (mantido igual à versão original)"""
+        """Corrige colisões persistentes com a bola"""
         if not self.ball or not self.rect.colliderect(self.ball.rect):
             return
 
