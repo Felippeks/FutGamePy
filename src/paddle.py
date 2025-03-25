@@ -4,8 +4,7 @@ from typing import Tuple
 from .asset_loader import AssetLoader
 from .config import Config
 import math
-from .head_tracker import HeadTracker  # Certifique-se de ter um módulo HeadTracker
-
+from .head_tracker import HeadTracker
 
 class Paddle:
     def __init__(self, image_path: str, constraints: Tuple[int, int, int, int], ball=None):
@@ -13,9 +12,9 @@ class Paddle:
         self.rect = pygame.Rect(0, 0, Config.PADDLE_WIDTH, Config.PADDLE_HEIGHT)
         self.constraints = constraints
         self.ball = ball
-        self.cpu_speed = Config.PLAYER_SPEED * 0.75  # Reduzir a velocidade da CPU
-        self.prediction_error = 0  # Para simular imprecisão humana
-        self.head_tracker = None  # Adicione esta linha
+        self.cpu_speed = Config.PLAYER_SPEED * 0.75  # Reduce CPU speed
+        self.prediction_error = 0  # Simulate human inaccuracy
+        self.head_tracker = None  # Add this line
 
     def enable_head_tracking(self):
         try:
@@ -32,10 +31,10 @@ class Paddle:
 
     def move(self, dx: int, dy: int):
         if self.head_tracker and self.head_tracker.running:
-            # Obter ambas as coordenadas
+            # Get both coordinates
             head_x, head_y = self.head_tracker.get_normalized_position()
 
-            # Converter para coordenadas do campo
+            # Convert to field coordinates
             min_x = self.constraints[0]
             max_x = self.constraints[1] - self.rect.width
             target_x = min_x + (head_x * (max_x - min_x))
@@ -44,17 +43,25 @@ class Paddle:
             max_y = self.constraints[3] - self.rect.height
             target_y = min_y + (head_y * (max_y - min_y))
 
-            # Calcular diferença com suavização
+            # Calculate difference with smoothing
             dx = (target_x - self.rect.x) * Config.HEAD_TRACKING_SMOOTHING
             dy = (target_y - self.rect.y) * Config.HEAD_TRACKING_SMOOTHING
 
-        # Movimento suavizado
-        self.rect.x += int(dx)
-        self.rect.y += int(dy)
+            # Smooth movement
+            self.rect.x += int(dx)
+            self.rect.y += int(dy)
 
-        # Garantir limites
-        self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
-        self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
+            # Ensure limits
+            self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
+            self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
+        else:
+            self.rect.x += dx
+            self.rect.y += dy
+
+            # Ensure limits
+            self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
+            self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
+
 
     def cpu_move(self):
         if self.ball:
