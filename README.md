@@ -23,11 +23,12 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
 ## ⚙️ Requisitos
 
 - Python 3.8+
-- Pygame 2.1.3+
+- Pygame
 - NumPy
 - opencv-python
 - mediapipe
 - cx_Freeze
+- protobuf
 
 ## 🛠 Instalação
 
