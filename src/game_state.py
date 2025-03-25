@@ -10,7 +10,8 @@ class GameState:
         self.controls_menu_active = False
         self.player1_control = "wasd"
         self.player2_control = "arrows"
-        
+        self.is_calibrating = False
+
     def reset(self):
         """
         Reseta o estado do jogo para os valores iniciais.
@@ -29,3 +30,4 @@ class GameState:
         self.menu_active = True
         self.is_paused = False
         self.controls_menu_active = False
+        self.is_calibrating = False

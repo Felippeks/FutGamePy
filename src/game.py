@@ -1,5 +1,6 @@
 import pygame
 import sys
+import cv2
 from .config import Config
 from .game_state import GameState
 from .sound_manager import SoundManager
@@ -8,6 +9,7 @@ from .ball import Ball
 from .paddle import Paddle
 from .physics_engine import PhysicsEngine
 from .input_handler import InputHandler
+
 
 
 class Game:
@@ -139,25 +141,45 @@ class Game:
             self.paddles[1].cpu_move()
 
     def _draw(self):
-        """
-        Desenha todos os elementos do jogo na tela.
-        """
+        """Desenha todos os elementos do jogo na tela."""
         self.window.fill(Config.BLACK)
+
+        # Sempre desenhar o campo e elementos do jogo
         self.ui.draw_field(self.window)
 
-        for paddle in self.paddles:
-            self.window.blit(paddle.image, paddle.rect)
+        # Desenhar elementos do jogo se não estiver no menu
+        if not self.state.menu_active and not self.state.controls_menu_active:
+            for paddle in self.paddles:
+                self.window.blit(paddle.image, paddle.rect)
+            self.ball.draw(self.window)
+            self.ui.draw_scoreboard(self.window)
 
-        self.ball.draw(self.window)
-        self.ui.draw_scoreboard(self.window)
-
-        # Corrigir aqui todas as referências para self.state
+        # Desenhar menus por cima se necessário
         if self.state.controls_menu_active:
             self.ui.draw_controls_menu(self.window)
         elif self.state.menu_active:
             self.ui.draw_menu(self.window)
         elif self.state.game_over:
             self.ui.draw_end_game(self.window)
+
+        # Tela de calibração (sobrepõe tudo)
+        if self.state.is_calibrating and hasattr(self.paddles[0], 'head_tracker') and self.paddles[0].head_tracker:
+            try:
+                if hasattr(self.paddles[0].head_tracker, 'cap') and self.paddles[0].head_tracker.cap.isOpened():
+                    ret, frame = self.paddles[0].head_tracker.cap.read()
+                    if ret:
+                        frame = cv2.flip(frame, 1)
+                        button_rect = self.ui.draw_calibration_screen(self.window, frame)
+
+                        # Verificar clique no botão de finalizar
+                        mouse_pos = pygame.mouse.get_pos()
+                        if button_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
+                            if self.paddles[0].head_tracker.end_calibration():
+                                self.state.is_calibrating = False
+                                self.sound_manager.play_button_click_sound()
+            except Exception as e:
+                print(f"Erro na calibração: {e}")
+                self.state.is_calibrating = False
 
         pygame.display.flip()
 

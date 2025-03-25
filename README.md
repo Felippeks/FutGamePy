@@ -2,14 +2,18 @@
 
 Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores competem para marcar o máximo de gols dentro de um tempo determinado.
 
-
 ## 🎮 Funcionalidades
 
 - **Modo 2 jogadores** (com controles independentes)
+- **Controles alternativos**: 
+  - Teclado tradicional (WASD e setas)
+  - Controle por movimentos da cabeça (webcam)
+  - Modo contra a CPU
 - **Sistema de menus interativo**:
   - Personalização de nomes dos jogadores
   - Seleção de duração do jogo (1, 3 ou 5 minutos)
   - Botão de mudo para áudio
+  - Menu de configuração de controles
 - **Física realista**:
   - Colisões dinâmicas entre bola e jogadores
   - Rebote angular da bola
@@ -20,7 +24,52 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
   - Música de fundo
 - **Pausa e retorno ao menu**
 
-## ⚙️ Requisitos
+## 🕹️ Controles Detalhados
+
+### Controles Tradicionais
+- **Jogador 1**:
+  - W: Mover para cima
+  - S: Mover para baixo
+  - A: Mover para esquerda
+  - D: Mover para direita
+- **Jogador 2**:
+  - ↑: Mover para cima
+  - ↓: Mover para baixo
+  - ←: Mover para esquerda
+  - →: Mover para direita
+
+### Controle por Movimento da Cabeça (Webcam)
+1. Selecione "Virtual" no menu de controles para o Jogador 1
+2. Clique em "Calibrar" para iniciar o processo
+3. Siga as instruções na tela:
+   - Mova sua cabeça em todas as direções (cima, baixo, esquerda, direita)
+   - Mantenha uma distância constante da câmera
+   - Clique em "Finalizar" quando terminar
+4. Dicas para melhor precisão:
+   - Certifique-se de ter boa iluminação
+   - Mantenha o rosto visível
+   - Evite movimentos bruscos
+
+### Modo CPU
+- Selecione "CPU" no menu de controles para o Jogador 2
+- A CPU terá um comportamento semi-aleatório com:
+  - Tempo de reação variável
+  - Erros de previsão de trajetória
+  - Dificuldade ajustável (editar `cpu_speed` no código)
+
+## ⚙️ Configuração de Controles
+
+Acesse o menu "CONTROLS" para:
+1. Selecionar o tipo de controle para cada jogador
+2. Calibrar o controle por movimento da cabeça
+3. Visualizar o status da calibração
+
+**Dicas de calibração**:
+- Realize a calibração na mesma posição em que vai jogar
+- Movimentos suaves funcionam melhor
+- Repita a calibração se notar imprecisão
+
+## 🛠️ Requisitos e Instalação
 
 - Python 3.8+
 - Pygame
