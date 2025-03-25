@@ -198,24 +198,149 @@ class UIManager:
                             elements_y + spacing, 'player2')
         # Tempo de Jogo
         self._draw_time_buttons(surface, elements_y + spacing * 2)
+
         # Botão Iniciar
         self._draw_menu_button(surface, "GAME START", elements_y + spacing * 3)
 
-        # Adicionar botão de mute centralizado abaixo do botão "GAME START"
-        self.mute_rect = pygame.Rect(Config.WIDTH//2 - 75, elements_y + spacing * 4 + 20, 150, 50)
-                
-        pygame.draw.rect(surface, Config.GOLD, self.mute_rect, border_radius=20)
-        pygame.draw.rect(surface, Config.WHITE, self.mute_rect, 3, border_radius=20)
-        mute_text = self.fonts['small'].render("Mute", True, Config.WHITE)
-        mute_text_rect = mute_text.get_rect(center=self.mute_rect.center)
+        # Botão Controles
+        self._draw_controls_button(surface, elements_y + spacing * 4)
+
+        # Botão Mute
+        self.mute_rect = self._draw_mute_button(surface, elements_y + spacing * 5)
+
+    def _draw_mute_button(self, surface, y):
+        button_rect = pygame.Rect(
+            Config.WIDTH // 2 - 100,
+            y,
+            200,
+            50
+        )
+
+        pygame.draw.rect(surface, Config.GOLD, button_rect, border_radius=20)
+        pygame.draw.rect(surface, Config.WHITE, button_rect, 3, border_radius=20)
+        mute_text = self.fonts['small'].render("MUTE", True, Config.WHITE)
+        mute_text_rect = mute_text.get_rect(center=button_rect.center)
         surface.blit(mute_text, mute_text_rect)
 
-        mouse_pos = pygame.mouse.get_pos()
-        if self.mute_rect.collidepoint(mouse_pos):
-            if self.hovered_button != self.mute_rect:
+        if button_rect.collidepoint(pygame.mouse.get_pos()):
+            if self.hovered_button != button_rect:
                 self.sound_manager.play_button_hover_sound()
-                self.hovered_button = self.mute_rect
-        elif self.hovered_button == self.mute_rect:
+                self.hovered_button = button_rect
+        elif self.hovered_button == button_rect:
+            self.hovered_button = None
+
+        return button_rect
+
+    def _draw_controls_button(self, surface, y):
+        button_rect = pygame.Rect(
+            Config.WIDTH // 2 - 100,
+            y,
+            200,
+            50
+        )
+        pygame.draw.rect(surface, Config.GOLD, button_rect, border_radius=20)
+        pygame.draw.rect(surface, Config.WHITE, button_rect, 3, border_radius=20)
+        text_surf = self.fonts['small'].render("CONTROLS", True, Config.WHITE)
+        text_rect = text_surf.get_rect(center=button_rect.center)
+        surface.blit(text_surf, text_rect)
+
+        if button_rect.collidepoint(pygame.mouse.get_pos()):
+            if self.hovered_button != button_rect:
+                self.sound_manager.play_button_hover_sound()
+                self.hovered_button = button_rect
+        elif self.hovered_button == button_rect:
+            self.hovered_button = None
+
+        mouse_pos = pygame.mouse.get_pos()
+        if button_rect.collidepoint(mouse_pos):
+            if self.hovered_button != button_rect:
+                self.sound_manager.play_button_hover_sound()
+                self.hovered_button = button_rect
+        elif self.hovered_button == button_rect:
+            self.hovered_button = None
+
+    def draw_controls_menu(self, surface: pygame.Surface):
+        # Fundo semi-transparente
+        overlay = pygame.Surface((Config.WIDTH, Config.HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 200))
+        surface.blit(overlay, (0, 0))
+
+        # Container do menu
+        menu_width = 780
+        menu_height = 450
+        menu_rect = pygame.Rect(
+            (Config.WIDTH - menu_width) // 2,
+            (Config.HEIGHT - menu_height) // 2,
+            menu_width,
+            menu_height
+        )
+        pygame.draw.rect(surface, Config.DARK_GOLD, menu_rect, border_radius=20)
+        pygame.draw.rect(surface, Config.GOLD, menu_rect, 3, border_radius=20)
+
+        # Título
+        title = self.fonts['large'].render("CONTROLS", True, Config.WHITE)
+        title_y = menu_rect.y + 30  # Posição ajustada
+        surface.blit(title, (Config.WIDTH // 2 - title.get_width() // 2, title_y))
+
+        # Configurações Player 1
+        self._draw_control_option(
+            surface, "Player 1:",
+            [("WASD", "wasd"), ("Virtual", "virtual")],
+            self.state.player1_control,
+            menu_rect.y + 100
+        )
+
+        # Configurações Player 2
+        self._draw_control_option(
+            surface, "Player 2:",
+            [("Setas", "arrows"), ("CPU", "cpu")],
+            self.state.player2_control,
+            menu_rect.y + 250
+        )
+
+        # Botão Voltar
+        self._draw_back_button(surface, menu_rect.y + 380)
+
+    def _draw_control_option(self, surface, label, options, current, y):
+        font = self.fonts['small']
+        # Centralizar verticalmente com os botões
+        label_y = y + 20 - font.get_height() // 2
+        label_text = font.render(label, True, Config.WHITE)
+        surface.blit(label_text, (Config.WIDTH // 2 - 350, label_y))
+
+        for i, (display_text, value) in enumerate(options):
+            # Ajuste fino no posicionamento
+            rect = pygame.Rect(
+                Config.WIDTH // 2 - 90 + i * 180,
+                y + 5,
+                170,
+                30
+            )
+            # Comparar com o valor (value) em vez do texto exibido
+            color = Config.GOLD if current == value else Config.WHITE
+            pygame.draw.rect(surface, color, rect, border_radius=8)
+            text = font.render(display_text, True, Config.BLACK)
+            text_rect = text.get_rect(center=rect.center)
+            surface.blit(text, text_rect)
+
+    def _draw_back_button(self, surface, y):
+        button_rect = pygame.Rect(
+            Config.WIDTH // 2 - 100,
+            y + 10,
+            200,
+            50
+        )
+        pygame.draw.rect(surface, Config.GOLD, button_rect, border_radius=20)
+        pygame.draw.rect(surface, Config.WHITE, button_rect, 3, border_radius=20)
+        text_surf = self.fonts['small'].render("BACK", True, Config.WHITE)
+        text_rect = text_surf.get_rect(center=button_rect.center)
+        surface.blit(text_surf, text_rect)
+
+        if button_rect.collidepoint(pygame.mouse.get_pos()):
+            if self.hovered_button != button_rect:
+                self.sound_manager.play_button_hover_sound()
+                self.hovered_button = button_rect
+        elif self.hovered_button == button_rect:
             self.hovered_button = None
 
     def _draw_menu_input(self, surface, label, value, y, field_id):
