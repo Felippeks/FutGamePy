@@ -180,16 +180,21 @@ class InputHandler:
         menu_rect_y = (Config.HEIGHT - menu_height) // 2
 
         # Player 1
-        player1_y = menu_rect_y + 100  # Antes era 70
+        player1_y = menu_rect_y + 100
         for i in range(2):
             rect = pygame.Rect(
-                Config.WIDTH // 2 - 90 + i * 180,  # Ajuste de posicionamento horizontal
-                player1_y + 5,  # Offset para match com o desenho
+                Config.WIDTH // 2 - 90 + i * 180,
+                player1_y + 5,
                 170,
                 30
             )
             if rect.collidepoint(pos):
-                state.player1_control = ["wasd", "virtual"][i]
+                new_control = ["wasd", "virtual"][i]
+                if new_control == "virtual":
+                    game.paddles[0].enable_head_tracking()
+                else:
+                    game.paddles[0].disable_head_tracking()
+                state.player1_control = new_control
                 game.sound_manager.play_button_click_sound()
 
         # Player 2
