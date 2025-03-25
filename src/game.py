@@ -160,3 +160,7 @@ class Game:
             self.ui.draw_end_game(self.window)
 
         pygame.display.flip()
+
+    def __del__(self):
+        for paddle in self.paddles:
+            paddle.disable_head_tracking()
