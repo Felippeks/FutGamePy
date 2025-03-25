@@ -17,3 +17,5 @@ class Config:
     NAME_FIELD_WIDTH = 300
     FONT_SIZES = {'normal': 20, 'small': 16, 'large': 36}
     TIME_OPTIONS = [60, 180, 300]
+    HEAD_TRACKING_SMOOTHING = 0.2
+    MIN_HEAD_MOVEMENT = 0.02

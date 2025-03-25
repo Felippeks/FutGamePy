@@ -4,6 +4,8 @@ from typing import Tuple
 from .asset_loader import AssetLoader
 from .config import Config
 import math
+from .head_tracker import HeadTracker  # Certifique-se de ter um módulo HeadTracker
+
 
 class Paddle:
     def __init__(self, image_path: str, constraints: Tuple[int, int, int, int], ball=None):
@@ -13,10 +15,44 @@ class Paddle:
         self.ball = ball
         self.cpu_speed = Config.PLAYER_SPEED * 0.75  # Reduzir a velocidade da CPU
         self.prediction_error = 0  # Para simular imprecisão humana
+        self.head_tracker = None  # Adicione esta linha
+
+    def enable_head_tracking(self):
+        try:
+            self.head_tracker = HeadTracker()
+            self.head_tracker.start()
+        except Exception as e:
+            print(f"Erro ao iniciar webcam: {e}")
+            self.head_tracker = None
+
+    def disable_head_tracking(self):
+        if self.head_tracker:
+            self.head_tracker.stop()
+            self.head_tracker = None
 
     def move(self, dx: int, dy: int):
-        self.rect.x += dx
-        self.rect.y += dy
+        if self.head_tracker and self.head_tracker.running:
+            # Obter ambas as coordenadas
+            head_x, head_y = self.head_tracker.get_normalized_position()
+
+            # Converter para coordenadas do campo
+            min_x = self.constraints[0]
+            max_x = self.constraints[1] - self.rect.width
+            target_x = min_x + (head_x * (max_x - min_x))
+
+            min_y = self.constraints[2]
+            max_y = self.constraints[3] - self.rect.height
+            target_y = min_y + (head_y * (max_y - min_y))
+
+            # Calcular diferença com suavização
+            dx = (target_x - self.rect.x) * Config.HEAD_TRACKING_SMOOTHING
+            dy = (target_y - self.rect.y) * Config.HEAD_TRACKING_SMOOTHING
+
+        # Movimento suavizado
+        self.rect.x += int(dx)
+        self.rect.y += int(dy)
+
+        # Garantir limites
         self.rect.x = max(min(self.rect.x, self.constraints[1] - self.rect.width), self.constraints[0])
         self.rect.y = max(min(self.rect.y, self.constraints[3] - self.rect.height), self.constraints[2])
 
@@ -24,8 +60,8 @@ class Paddle:
         if self.ball:
             # Nova verificação de parede próxima
             near_wall = (
-                self.ball.rect.left <= Config.FIELD_OFFSET_X + 20 or
-                self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 20
+                    self.ball.rect.left <= Config.FIELD_OFFSET_X + 20 or
+                    self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 20
             )
 
             if near_wall:
@@ -86,8 +122,8 @@ class Paddle:
             if self.rect.colliderect(self.ball.rect):
                 # Verificar se está próximo das bordas
                 near_wall = (
-                    self.ball.rect.left <= Config.FIELD_OFFSET_X + 5 or
-                    self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 5
+                        self.ball.rect.left <= Config.FIELD_OFFSET_X + 5 or
+                        self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 5
                 )
 
                 # Reposicionamento mais assertivo
