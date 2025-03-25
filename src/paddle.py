@@ -3,12 +3,11 @@ import random
 from typing import Tuple
 from .asset_loader import AssetLoader
 from .config import Config
-
+import math
 
 class Paddle:
     def __init__(self, image_path: str, constraints: Tuple[int, int, int, int], ball=None):
-        self.image = AssetLoader.load_image(image_path,
-                                            (Config.PADDLE_WIDTH, Config.PADDLE_HEIGHT))
+        self.image = AssetLoader.load_image(image_path, (Config.PADDLE_WIDTH, Config.PADDLE_HEIGHT))
         self.rect = pygame.Rect(0, 0, Config.PADDLE_WIDTH, Config.PADDLE_HEIGHT)
         self.constraints = constraints
         self.ball = ball
@@ -23,30 +22,42 @@ class Paddle:
 
     def cpu_move(self):
         if self.ball:
-            # Configurações de comportamento
-            skill_level = 0.5  # Reduzir o nível de habilidade
-            reaction_delay_chance = 0.1  # Aumentar a chance de atraso na reação
-            max_anticipation = 1.0  # Reduzir a antecipação máxima
-
-            # Calcular posição futura
-            ball_speed_factor = 1 + (self.ball.speed_x / Config.BALL_SPEED)
-            target_x = self.ball.rect.centerx + self.ball.speed_x * ball_speed_factor
-            target_y = self.ball.rect.centery + self.ball.speed_y * ball_speed_factor
-
-            # Aumentar o erro de previsão
-            prediction_error = random.randint(
-                -int(abs(self.ball.speed_y) * 5),  # Aumentar a margem de erro
-                int(abs(self.ball.speed_y) * 5)
+            # Nova verificação de parede próxima
+            near_wall = (
+                self.ball.rect.left <= Config.FIELD_OFFSET_X + 20 or
+                self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 20
             )
 
-            if self.ball.speed_x > 0:
-                # Movimento ofensivo
-                target_x = min(target_x + prediction_error, self.constraints[1])
-                target_y += self.ball.speed_y * max_anticipation
+            if near_wall:
+                # Comportamento diferente perto das paredes
+                target_x = self.rect.centerx
+                target_y = self.rect.centery - 50  # Recuar
+                reaction_delay_chance = 0.3  # Aumentar chance de atraso
             else:
-                # Movimento defensivo
-                target_x = self.rect.centerx  # Manter a posição atual
-                target_y = self.rect.centery + prediction_error * 0.5
+                # Configurações de comportamento
+                skill_level = 0.5  # Reduzir o nível de habilidade
+                reaction_delay_chance = 0.1  # Aumentar a chance de atraso na reação
+                max_anticipation = 1.0  # Reduzir a antecipação máxima
+
+                # Calcular posição futura
+                ball_speed_factor = 1 + (self.ball.speed_x / Config.BALL_SPEED)
+                target_x = self.ball.rect.centerx + self.ball.speed_x * ball_speed_factor
+                target_y = self.ball.rect.centery + self.ball.speed_y * ball_speed_factor
+
+                # Aumentar o erro de previsão
+                prediction_error = random.randint(
+                    -int(abs(self.ball.speed_y) * 5),  # Aumentar a margem de erro
+                    int(abs(self.ball.speed_y) * 5)
+                )
+
+                if self.ball.speed_x > 0:
+                    # Movimento ofensivo
+                    target_x = min(target_x + prediction_error, self.constraints[1])
+                    target_y += self.ball.speed_y * max_anticipation
+                else:
+                    # Movimento defensivo
+                    target_x = self.rect.centerx  # Manter a posição atual
+                    target_y = self.rect.centery + prediction_error * 0.5
 
             # Suavização de movimento com momentum
             dx = (target_x - self.rect.centerx) * 0.1  # Reduzir o fator de suavização
@@ -75,8 +86,8 @@ class Paddle:
             if self.rect.colliderect(self.ball.rect):
                 # Verificar se está próximo das bordas
                 near_wall = (
-                        self.ball.rect.left <= Config.FIELD_OFFSET_X + 5 or
-                        self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 5
+                    self.ball.rect.left <= Config.FIELD_OFFSET_X + 5 or
+                    self.ball.rect.right >= Config.FIELD_OFFSET_X + Config.FIELD_WIDTH - 5
                 )
 
                 # Reposicionamento mais assertivo
