@@ -1,4 +1,4 @@
-# Gol a Gol - 2 Player Soccer Game
+# Gol a Gol - Two Players Soccer Game
 
 Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores competem para marcar o máximo de gols dentro de um tempo determinado.
 
@@ -25,6 +25,9 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
 - Python 3.8+
 - Pygame 2.1.3+
 - NumPy
+- opencv-python
+- mediapipe
+- cx_Freeze
 
 ## 🛠 Instalação
 
@@ -76,9 +79,14 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
     │   ├── ui_manager.py
     │   ├── __init__.py
     │   └── main.py
+    ├── setup.py
+    ├── requirements.txt
+    └── README.md
+   
    ```
 
 ## 🕹 Como Jogar
+### Acesse o menu de controle e selecione as opções desejadas:
 
 **Controles:**
 - **Jogador 1**:
@@ -86,12 +94,15 @@ Um jogo de futebol multiplayer local desenvolvido em Pygame, onde dois jogadores
   - S: Mover para baixo
   - A: Mover para esquerda
   - D: Mover para direita
+- **Ou Virtualmente:**
+
 
 - **Jogador 2**:
   - ↑: Mover para cima
   - ↓: Mover para baixo
   - ←: Mover para esquerda
   - →: Mover para direita
+- **Ou contra CPU:**
 
 **Objetivo:**  
 Marque mais gols que o oponente antes do tempo acabar! A bola deve passar pela área dourada no lado adversário.
@@ -100,6 +111,7 @@ Marque mais gols que o oponente antes do tempo acabar! A bola deve passar pela �
 - Insira nomes dos jogadores
 - Selecione o tempo de jogo
 - Use o botão "Mute" para controlar o áudio
+- Use o menu de controle para ajustar as configurações
 - Clique em "GAME START" para iniciar
 
 ## 🎛 Personalização
@@ -130,14 +142,15 @@ class Config:
 - Sons: https://freesound.org/ (busque por "soccer sounds")
 
 **Para criar o executável (opcional):**
-Instale o pyinstaller:
+Instale o cx_Freeze:
 ```bash
-pip install pyinstaller
+pip install cx_Freeze
 ```
+Se certifique de que o arquivo `setup.py` está configurado corretamente:
 
 Crie o executável:
 ```bash
-pyinstaller --onefile --windowed --add-data "imagens;imagens" --add-data "sons;sons" --add-data "PressStart2P-Regular.ttf;." main.py
+python setup.py build
 ```
 
 ## 📄 Licença
